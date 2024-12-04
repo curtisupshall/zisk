@@ -60,7 +60,6 @@ export interface JournalEditorProps {
 export interface JournalEntrySelection {
     entry: EnhancedJournalEntry | null;
     anchorEl: HTMLElement | null;
-    // children: JournalEntry[];
 }
 
 export default function JournalEditor(props: JournalEditorProps) {
