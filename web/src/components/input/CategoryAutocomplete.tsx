@@ -13,6 +13,7 @@ type CategoryAutocompleteProps = Omit<
 > &
 	Partial<Pick<AutocompleteProps<Category['_id'], false, false, false>, 'options' | 'renderInput'>> & {
 		label?: string
+		variant?: 'filled' | 'outlined' | 'standard'
 	}
 
 export default function CategoryAutocomplete(props: CategoryAutocompleteProps) {
@@ -26,7 +27,24 @@ export default function CategoryAutocomplete(props: CategoryAutocompleteProps) {
 			loading={isLoading}
 			options={Object.keys(data)}
 			// isOptionEqualToValue={(option, value) => option._id === value}
-			renderInput={(params) => <TextField {...params} label={label ?? 'Category'} />}
+			renderInput={(params) => {
+				const avatar = props.value && data[props.value]?.avatar
+				return (
+					<TextField
+						{...params}
+						label={label ?? 'Category'}
+						variant={props.variant}
+						slotProps={{
+							input: {
+								...params.InputProps,
+								startAdornment: avatar
+									? <AvatarIcon avatar={avatar} />
+									: undefined
+							}
+						}}
+					/>
+				)
+			}}
 			getOptionLabel={(option) => data[option]?.label}
 			renderOption={(props, option) => {
 				const { key, ...optionProps } = props

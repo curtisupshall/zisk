@@ -36,7 +36,7 @@ export default function JournalFilters(props: JournalFiltersProps) {
     }
 
     return (
-        <Menu anchorEl={props.anchorEl} open={Boolean(props.anchorEl)} onClose={() => {}}>
+        <Menu anchorEl={props.anchorEl} open={Boolean(props.anchorEl)} onClose={() => props.onClose()}>
             <ListItemButton onClick={() => testClick()}>
                 <ListItemIcon>
                     <Category />

@@ -247,6 +247,7 @@ export default function JournalEntryForm() {
 							render={({ field }) => (
 								<TextField
 									label="Memo"
+									variant='filled'
 									autoFocus
 									{...field}
 									ref={null}
@@ -272,6 +273,7 @@ export default function JournalEntryForm() {
 							render={({ field }) => (
 								<TextField
 									label="Amount"
+									variant='filled'
 									{...field}
 									onChange={(event) => {
 										const value = event.target.value
@@ -308,6 +310,7 @@ export default function JournalEntryForm() {
 										slotProps={{
 											textField: {
 												fullWidth: true,
+												variant: 'filled'
 											},
 										}}
 									/>
@@ -327,6 +330,7 @@ export default function JournalEntryForm() {
 									<CategoryAutocomplete
 										{...field}
 										ref={null}
+										variant='filled'
 										value={categoryId}
 										onChange={(_event, newValue) => {
 											// setManuallySetCategory(Boolean(newValue))

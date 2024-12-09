@@ -1,4 +1,5 @@
-import ManageJournalsModal from '@/components/journal/ManageJournalsModal'
+import CreateJournalModal from '@/components/journal/CreateJournalModal'
+import SelectJournalModal from '@/components/journal/SelectJournalModal'
 import { PLACEHOLDER_UNNAMED_JOURNAL_NAME } from '@/constants/journal'
 import { JournalContext } from '@/contexts/JournalContext'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
@@ -24,10 +25,14 @@ db.createIndex({
 
 export default function JournalContextProvider(props: PropsWithChildren) {
 	const [showCreateJournalEntryModal, setShowCreateJournalEntryModal] = useState<boolean>(false)
-	const [showManageJournalsModal, setShowManageJournalsModal] = useState<boolean>(false)
-	const [manageJournalsModalInitialMode, setManageJournalsModalInitialMode] = useState<'SELECT' | 'CREATE'>('SELECT')
+	const [showSelectJournalModal, setShowSelectJournalModal] = useState<boolean>(false)
+	const [showCreateJournalModal, setShowCreateJournalModal] = useState(false)
 	const [createEntryInitialDate, setCreateEntryInitialDate] = useState<string | undefined | null>(null)
+
+	// The currently active journal
 	const [activeJournal, setActiveJournal] = useState<JournalMeta | null>(null)
+	// The journal selected in the SelectJournalModal
+	const [selectedJournal, setSelectedJournal] = useState<JournalMeta | null>(null)
 
 	const { snackbar } = useContext(NotificationsContext)
 
@@ -76,13 +81,14 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 	}
 
 	const promptCreateJournal = () => {
-		setManageJournalsModalInitialMode('CREATE')
-		setShowManageJournalsModal(true)
+		setShowSelectJournalModal(true)
 	}
 
 	const promptSelectJournal = () => {
-		setManageJournalsModalInitialMode('SELECT')
-		setShowManageJournalsModal(true)
+		if (activeJournal) {
+			setSelectedJournal(activeJournal)
+		}
+		setShowSelectJournalModal(true)
 	}
 
 	const handleSelectJournal = (journal: JournalMeta) => {
@@ -104,7 +110,7 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 			return
 		}
 		updateActiveJournal(activeJournal._id)
-		setShowManageJournalsModal(false)
+		setShowSelectJournalModal(false)
 		refetchAllDependantQueries()
 	}, [activeJournal])
 
@@ -141,11 +147,22 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 				getJournalsQuery,
 				openJournalManager: () => promptSelectJournal(),
 			}}>
-			<ManageJournalsModal
-				open={showManageJournalsModal}
-				initialMode={manageJournalsModalInitialMode}
-				onClose={() => setShowManageJournalsModal(false)}
+			<SelectJournalModal
+				open={showSelectJournalModal}
+				onClose={() => setShowSelectJournalModal(false)}
+				initialSelection={selectedJournal}
+
 				onSelect={handleSelectJournal}
+				onPromptCreate={() => setShowCreateJournalModal(true)}
+			/>
+			<CreateJournalModal
+				open={showCreateJournalModal}
+				onClose={() => setShowCreateJournalModal(false)}
+				onCreated={(newJournal) => {
+					setSelectedJournal(newJournal)
+					setShowCreateJournalModal(false)
+					setShowSelectJournalModal(true)
+				}}
 			/>
 			{props.children}
 		</JournalContext.Provider>
