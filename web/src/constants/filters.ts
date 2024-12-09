@@ -1,5 +1,4 @@
 import { JournalAllFilters } from "@/components/journal/JournalFilters";
-import { EntryType } from "@/types/schema";
 
 type Serializer<T> = {
     [K in keyof T]: (value: T[K]) => string;
@@ -11,7 +10,6 @@ type Deserializer<T> = {
 
 export const JOURNAL_FILTER_SHORTHAND_KEY_MAP: Record<keyof JournalAllFilters, string> = {
     'categories': 'cs',
-    'entryType': 'et',
     'entryTags': 'ts',
     'hasAttachments': 'at',
     'dateBefore': 'db',
@@ -26,7 +24,6 @@ export const JOURNAL_FILTER_SHORTHAND_KEY_MAP_INVERSE = Object.fromEntries(
 // Serializer map
 export const JOURNAL_FILTER_KEY_SERIALIZER: Serializer<JournalAllFilters> = {
     'categories': (value: string[]) => value.join(','),
-    'entryType': (value: string) => value,
     'entryTags': (value: string[]) => value.join(','),
     'hasAttachments': (value: boolean) => (value ? 'true' : 'false'),
     'dateBefore': (value: string) => value,
@@ -37,7 +34,6 @@ export const JOURNAL_FILTER_KEY_SERIALIZER: Serializer<JournalAllFilters> = {
 // Deserializer map
 export const JOURNAL_FILTER_KEY_DESERIALIZER: Deserializer<JournalAllFilters> = {
     'categories': (value: string) => value.split(','),
-    'entryType': (value: string) => value as EntryType,
     'entryTags': (value: string) => value.split(','),
     'hasAttachments': (value: string) => value === 'true',
     'dateBefore': (value: string) => value,

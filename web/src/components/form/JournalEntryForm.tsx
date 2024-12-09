@@ -196,7 +196,6 @@ export default function JournalEntryForm() {
 		childrenFieldArray.append({
 			amount: '',
 			memo: '',
-			entryType: 'CREDIT',
 		})
 	}
 

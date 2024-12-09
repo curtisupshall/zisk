@@ -49,7 +49,6 @@ export default function CreateJournalEntryModal(props: JournalEntryModalProps) {
 				tagIds: [],
 				artifactIds: [],
 				notes: '',
-				entryType: 'CREDIT',
 				paymentMethodId: null,
 				relatedEntryIds: [],
 			},

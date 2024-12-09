@@ -162,7 +162,6 @@ export const createQuickJournalEntry = async (
 			tagIds: [],
 			artifactIds: [],
 			notes: '',
-			entryType: 'CREDIT',
 		},
 		children: [],
 		artifacts: [],

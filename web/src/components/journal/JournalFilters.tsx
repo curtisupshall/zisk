@@ -1,5 +1,4 @@
 import useQueryFilters from "@/hooks/useQueryFilters"
-import { EntryType } from "@/types/schema"
 import { Category, ChevronRight } from "@mui/icons-material"
 import { ListItemButton, ListItemIcon, ListItemText, Menu } from "@mui/material"
 
@@ -10,7 +9,6 @@ interface JournalFilterConfig {
 
 export interface JournalAllFilters {
     categories: string[]
-    entryType: EntryType
     entryTags: string[]
     hasAttachments: boolean
     dateBefore: string
