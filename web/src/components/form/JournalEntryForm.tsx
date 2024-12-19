@@ -6,13 +6,14 @@ import {
 	Grid2 as Grid,
 	Stack,
 	TextField,
+	Typography,
 } from '@mui/material'
 import { Controller, useFormContext } from 'react-hook-form'
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { JournalEntry } from '@/types/schema'
-import { FilterList } from '@mui/icons-material'
+import { Add, SubdirectoryArrowRight } from '@mui/icons-material'
 // import { JournalContext } from '@/contexts/JournalContext'
 import AmountField from '../input/AmountField'
 import CategorySelector from '../input/CategorySelector'
@@ -199,6 +200,10 @@ export default function JournalEntryForm() {
 	// 	return watch(`children.${entryTagPickerData.index}.tagIds`) ?? []
 	// }, [entryTagPickerData.index, watch(`children.${entryTagPickerData.index}.tagIds`)])
 
+	const handleAddSubEntry = () => {
+		throw new Error('Not implemented')
+	}
+
 	return (
 		<>
 			{/* <EntryTagPicker
@@ -213,8 +218,8 @@ export default function JournalEntryForm() {
 				<Grid container columns={12} spacing={3} rowSpacing={2} mb={1} sx={{ px: 0 }}>
 					<Grid size={12}>
 						<Stack direction='row' sx={{ pt: 0, pb: 2 }}>
-							<Button variant='outlined' startIcon={<FilterList />} onClick={() => {}}>
-								Test
+							<Button variant='outlined' startIcon={<SubdirectoryArrowRight />} onClick={() => handleAddSubEntry()}>
+								Add Sub-Entry
 							</Button>
 						</Stack>
 					</Grid>
@@ -292,7 +297,10 @@ export default function JournalEntryForm() {
 								)
 							})}
 						</Stack> */}
-						<Button onClick={() => {}}>Add Child</Button>
+						<Stack direction='row' alignItems={'center'} justifyContent={'space-between'} mt={2}>
+							<Typography>Sub-Entries (0)</Typography>
+							<Button onClick={() => handleAddSubEntry()} startIcon={<Add />}>Add Row</Button>
+						</Stack>
 						{/* <Stack>
 							{artifactsFieldArray.fields.map((field, index) => {
 								return (

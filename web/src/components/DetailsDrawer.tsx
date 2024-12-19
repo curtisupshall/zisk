@@ -23,6 +23,7 @@ export default function DetailsDrawer(props: DetailsDrawerProps) {
                     </Stack>
                 )}
             </Stack>
+            {/* <Divider /> */}
             {props.children}
         </Drawer>
     )

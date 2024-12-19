@@ -53,7 +53,7 @@ export default function JournalEntryModal(props: EditJournalEntryModalProps) {
 	}, [journal]);
 
 	const currentFormState = useWatch({ control: journalEntryForm.control })
-	const currentMemoValue = currentFormState.memo
+	const currentMemoValue = currentFormState.memo ?? ''
 
 	const [debouncedhandleSaveFormWithCurrentValues, flushSaveFormDebounce] = useDebounce(handleSaveFormWithCurrentValues, 1000)
 
@@ -102,7 +102,7 @@ export default function JournalEntryModal(props: EditJournalEntryModalProps) {
 				onClose={handleClose}
 				actions={
 					<>
-						<Tooltip title='Delete'>
+						<Tooltip title='Delete Entry'>
 							<IconButton onClick={() => handleDelete()}>
 								<Delete />
 							</IconButton>
@@ -115,7 +115,7 @@ export default function JournalEntryModal(props: EditJournalEntryModalProps) {
 						<Stack direction='row' gap={1} alignItems='center'>
 							<AvatarIcon />
 							<Typography variant='inherit'>
-								{currentMemoValue || PLACEHOLDER_UNNAMED_JOURNAL_ENTRY_MEMO}
+								{currentMemoValue.trim() || PLACEHOLDER_UNNAMED_JOURNAL_ENTRY_MEMO}
 							</Typography>
 						</Stack>
 					</DialogTitle>
