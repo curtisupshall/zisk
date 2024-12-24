@@ -1,3 +1,4 @@
+import { exportJournal } from "@/database/actions";
 import { ArrowDropDown } from "@mui/icons-material";
 import { Button, ButtonGroup, Menu, MenuItem } from "@mui/material";
 import { useRef, useState } from "react";
@@ -5,6 +6,7 @@ import { useRef, useState } from "react";
 interface JournalActionsProps {
     onPromptDeleteJournal: () => void;
     onPromptResetJournal: () => void;
+    onExportJournal: () => void;
 }
 
 export default function JournalActions(props: JournalActionsProps) {
@@ -30,6 +32,10 @@ export default function JournalActions(props: JournalActionsProps) {
             <Menu anchorEl={anchorRef.current} open={showResetMenu} onClose={() => setShowResetMenu(false)}>
                 <MenuItem onClick={() => handlePromptResetJournal()}>Reset</MenuItem>
             </Menu>
+
+            <Button onClick={() => props.onExportJournal()} color='primary'>
+                Export
+            </Button>
         
             <ButtonGroup variant='outlined' ref={anchorRef}>
                 <Button onClick={() => handlePromptDeleteJournal()} color='error'>

@@ -10,6 +10,8 @@ import {
 import { getDatabaseClient } from './client'
 import { generateCategoryId, generateEntryTagId, generateJournalId } from '@/utils/id'
 import { getOrCreateZiskMeta } from './queries'
+import JSZip from 'jszip'
+import FileSaver from 'file-saver'
 
 const db = getDatabaseClient()
 
@@ -155,3 +157,14 @@ export const createEntryTag = async (formData: CreateEntryTag, journalId: string
 	return db.put(tag)
 }
 
+export const exportJournal = async (journalId: string) => {
+	const journal = await db.get(journalId)
+	const journalObjects = await getAllJournalObjects(journalId)
+
+	const zip = new JSZip()
+	zip.file('journal.json', JSON.stringify(journal))
+	zip.file('objects.json', JSON.stringify(journalObjects))
+
+	const content = await zip.generateAsync({ type: 'blob' })
+	FileSaver.saveAs(content, 'journal.ZISK');
+}

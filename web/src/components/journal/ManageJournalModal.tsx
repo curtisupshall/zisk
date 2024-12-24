@@ -7,7 +7,7 @@ import { useContext, useMemo, useState } from 'react'
 import { formatFileSize } from '@/utils/string'
 import { PLACEHOLDER_UNNAMED_JOURNAL_NAME } from '@/constants/journal'
 import JournalActions from './JournalActions'
-import { deleteJournal, resetJournal } from '@/database/actions'
+import { deleteJournal, exportJournal, resetJournal } from '@/database/actions'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { JournalContext } from '@/contexts/JournalContext'
 
@@ -131,6 +131,13 @@ export default function ManageJournalModal(props: ManageJournalModalProps) {
 		props.onClose()
 	}
 
+	const handleExportJournal = async () => {
+		if (!props.details.journal) {
+			return
+		}
+        const result = await exportJournal(props.details.journal._id);
+    }
+
 	return (
 		<>
 			<Dialog open={showDeleteMenu} onClose={() => setShowDeleteMenu(false)}>
@@ -161,6 +168,7 @@ export default function ManageJournalModal(props: ManageJournalModalProps) {
 					<JournalActions
 						onPromptDeleteJournal={() => setShowDeleteMenu(true)}
 						onPromptResetJournal={() => setShowResetMenu(true)}
+						onExportJournal={() => handleExportJournal()}
 					/>
 					<Button onClick={() => props.onClose()}>Close</Button>
 				</DialogActions>
