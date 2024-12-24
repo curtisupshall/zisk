@@ -6,6 +6,7 @@ import { JournalContext } from '@/contexts/JournalContext'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import {  deleteCategory, undeleteCategory } from '@/database/actions'
 import { Category } from '@/types/schema'
+import { generateCategoryLink } from '@/utils/link'
 import { pluralize as p } from '@/utils/string'
 import { Add, Search } from '@mui/icons-material'
 import {
@@ -121,7 +122,7 @@ export default function ManageCategories() {
 									<ListItemIcon>
 										<AvatarIcon avatar={category?.avatar} />
 									</ListItemIcon>
-									<Link href={`/journal/a?cs=${category._id}`}>
+									<Link href={generateCategoryLink(category)}>
 										<CategoryChip category={category} contrast />
 									</Link>
 								</ListItem>

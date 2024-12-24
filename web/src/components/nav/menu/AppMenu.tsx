@@ -30,13 +30,30 @@ interface CreateEntryButtonProps extends AppMenuProps {
 }
 
 const CreateEntryButton = (props: CreateEntryButtonProps) => {
+	const handleCreateEntry = () => {
+		journalContext.createJournalEntry()
+	}
+
+	useEffect(() => {
+		// Add event listener to open search when user presses '/' key
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'c') {
+				handleCreateEntry()
+				event.stopPropagation()
+				event.preventDefault()
+			}
+		}
+		document.addEventListener('keydown', handleKeyDown)
+		return () => document.removeEventListener('keydown', handleKeyDown)
+	}, [])
+
 	const journalContext = useContext(JournalContext)
 	if (props.view === 'mobile') {
 		return (
 			<Fab
 				color="primary"
 				aria-label="add"
-				onClick={() => journalContext.createJournalEntry()}
+				onClick={() => handleCreateEntry()}
 				variant="extended"
 				size="large"
 				sx={(theme) => ({
@@ -50,22 +67,12 @@ const CreateEntryButton = (props: CreateEntryButtonProps) => {
 		)
 	}
 
-	const Wrapper = props.expanded
-		? React.Fragment
-		: ({ children }: { children: React.ReactElement<unknown, any> }) => {
-				return (
-					<Tooltip title="New Entry" placement="right">
-						{children}
-					</Tooltip>
-				)
-			}
-
 	return (
-		<Wrapper>
+		<Tooltip title="New Entry [C]" placement="right">
 			<Fab
 				color="primary"
 				aria-label="add"
-				onClick={() => journalContext.createJournalEntry()}
+				onClick={() => handleCreateEntry()}
 				variant={props.expanded ? 'extended' : 'circular'}
 				size={props.expanded ? 'large' : 'medium'}
 				sx={(theme) => ({
@@ -75,7 +82,7 @@ const CreateEntryButton = (props: CreateEntryButtonProps) => {
 				<Create sx={{ mr: props.expanded ? 1 : undefined }} />
 				{props.expanded && <span>New Entry</span>}
 			</Fab>
-		</Wrapper>
+		</Tooltip>
 	)
 }
 

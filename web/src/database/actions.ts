@@ -6,6 +6,7 @@ import {
 	EntryTag,
 	JournalEntry,
 	JournalMeta,
+	ZiskDocument,
 } from '@/types/schema'
 import { getDatabaseClient } from './client'
 import { generateCategoryId, generateEntryTagId, generateJournalId } from '@/utils/id'
@@ -120,13 +121,13 @@ export const updateActiveJournal = async (journalId: string) => {
 	})
 }
 
-export const getAllJournalObjects = async (journalId: string) => {
+export const getAllJournalObjects = async (journalId: string): Promise<ZiskDocument[]> => {
 	const result = await db.find({
 		selector: {
 			journalId,
 		},
 	})
-	return result.docs
+	return result.docs as ZiskDocument[]
 }
 
 export const resetJournal = async (journalId: string) => {

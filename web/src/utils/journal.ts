@@ -1,5 +1,8 @@
 import {
+	Category,
+	ChildJournalEntry,
 	EntryArtifact,
+	ZiskDocument,
 	type JournalEntry,
 } from '@/types/schema'
 import { generateArtifactId, generateJournalEntryId } from './id'
@@ -96,4 +99,16 @@ export const makeEntryArtifact = (formData: Partial<EntryArtifact>, journalId: s
 	}
 
 	return entryArtifact
+}
+
+export const documentIsJournalEntryOrChildJournalEntry = (doc: ZiskDocument): doc is JournalEntry | ChildJournalEntry => {
+	return ['JOURNAL_ENTRY', 'CHILD_JOURNAL_ENTRY'].includes(doc.type)
+}
+
+export const documentIsChildJournalEntry = (doc: ZiskDocument): doc is ChildJournalEntry => {
+	return doc.type === 'CHILD_JOURNAL_ENTRY'
+}
+
+export const documentIsCategory = (doc: ZiskDocument): doc is Category => {
+	return doc.type === 'CATEGORY'
 }

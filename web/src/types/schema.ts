@@ -92,11 +92,20 @@ export const BaseJournalEntry = DocumentMetadata.merge(BelongsToJournal).merge(A
 	})
 )
 
+export type BaseJournalEntry = z.output<typeof BaseJournalEntry>
+
 export const JournalEntry = BaseJournalEntry.merge(
 	z.object({
 		children: z.array(BaseJournalEntry).optional(),
 	})
 )
+
+export const ChildJournalEntry = BaseJournalEntry.merge(z.object({
+	parentEntry: JournalEntry,
+	type: z.literal('CHILD_JOURNAL_ENTRY'),
+}))
+
+export type ChildJournalEntry = z.output<typeof ChildJournalEntry>
 
 export type JournalEntry = z.output<typeof JournalEntry>
 
@@ -140,10 +149,6 @@ export const EntryTag = DocumentMetadata.merge(BelongsToJournal).merge(CreateEnt
 
 export type EntryTag = z.output<typeof EntryTag>
 
-export const ZiskDocument = z.union([Category, JournalEntry, EntryTag])
-
-export type ZiskDocument = z.output<typeof ZiskDocument>
-
 export const ZiskMeta = IdentifierMetadata.merge(
 	z.object({
 		activeJournalId: z.string().nullable(),
@@ -169,3 +174,12 @@ export const JournalMeta = IdentifierMetadata.merge(CreateJournalMeta).merge(
 )
 
 export type JournalMeta = z.output<typeof JournalMeta>
+
+export const ZiskDocument = z.union([
+	Category,
+	JournalEntry,
+	ChildJournalEntry,
+	EntryTag
+])
+
+export type ZiskDocument = z.output<typeof ZiskDocument>

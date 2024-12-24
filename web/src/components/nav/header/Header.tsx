@@ -5,7 +5,7 @@ import AppLogo from './AppLogo'
 import { Menu, MenuOpen, Settings } from '@mui/icons-material'
 import { useAppMenuStateStore } from '@/store/useAppMenuStateStore'
 import ActiveJournal from './ActiveJournal'
-import SearchWidget from './SearchWidget'
+import SearchWidget from './search/SearchWidget'
 import SyncStatus from './SyncStatus'
 import UserWidget from './UserWidget'
 
