@@ -1,7 +1,7 @@
 'use client'
 
 import { Close, Delete, Edit, MoreVert } from '@mui/icons-material'
-import { Box, IconButton, Popover, Stack, Typography } from '@mui/material'
+import { Box, ClickAwayListener, Fade, IconButton, Paper, Popper, Stack, Typography } from '@mui/material'
 import AvatarIcon from '@/components/icon/AvatarIcon'
 import { useContext } from 'react'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
@@ -73,61 +73,71 @@ export default function JournalEntryCard(props: JournalEntryCardProps) {
 	}
 
 	return (
-		<Popover
+		<Popper
 			anchorEl={anchorEl}
 			open={Boolean(anchorEl)}
-			onClose={props.onClose}
-			anchorOrigin={{
-				vertical: 'top',
-				horizontal: 'center',
-			}}
-			transformOrigin={{
-				vertical: 'top',
-				horizontal: 'center',
-			}}>
-			<Stack gap={2} sx={{ minWidth: '400px' }}>
-				<Box p={1} mb={2}>
-					<Stack direction="row" justifyContent="space-between" alignItems={'center'} sx={{ mb: 2 }}>
-						<Box px={1}>
-							<JournalEntryNumber value={null} />
-						</Box>
-						<Stack direction="row" gap={0.5}>
-							<IconButton size="small" onClick={() => handleEditJournalEntry(entry)}>
-								<Edit fontSize="small" />
-							</IconButton>
+			// onClose={props.onClose}
+			// anchorOrigin={{
+			// 	vertical: 'top',
+			// 	horizontal: 'center',
+			// }}
+			// transformOrigin={{
+			// 	vertical: 'top',
+			// 	horizontal: 'center',
+			// }}
+			transition
+		>
+			{({ TransitionProps }) => (
+				<ClickAwayListener onClickAway={props.onClose}>
+					<Fade {...TransitionProps} timeout={350}>
+						<Paper>
+							<Stack gap={2} sx={{ minWidth: '400px' }}>
+								<Box p={1} mb={2}>
+									<Stack direction="row" justifyContent="space-between" alignItems={'center'} sx={{ mb: 2 }}>
+										<Box px={1}>
+											<JournalEntryNumber value={null} />
+										</Box>
+										<Stack direction="row" gap={0.5}>
+											<IconButton size="small" onClick={() => handleEditJournalEntry(entry)}>
+												<Edit fontSize="small" />
+											</IconButton>
 
-							<IconButton type="submit" size="small" onClick={() => handleDeleteEntry()}>
-								<Delete fontSize="small" />
-							</IconButton>
+											<IconButton type="submit" size="small" onClick={() => handleDeleteEntry()}>
+												<Delete fontSize="small" />
+											</IconButton>
 
-							<IconButton size="small">
-								<MoreVert fontSize="small" />
-							</IconButton>
+											<IconButton size="small">
+												<MoreVert fontSize="small" />
+											</IconButton>
 
-							<IconButton size="small" sx={{ ml: 1 }} onClick={() => props.onClose()}>
-								<Close fontSize="small" />
-							</IconButton>
-						</Stack>
-					</Stack>
-					<Stack sx={{ textAlign: 'center' }} alignItems="center">
-						<Typography
-							variant="h3"
-							sx={(theme) => ({
-								color: isNetPositive ? theme.palette.success.main : undefined,
-								mb: 0.5,
-							})}>
-							{getPriceString(netAmount)}
-						</Typography>
-						<Stack direction="row" gap={1}>
-							<AvatarIcon avatar={category?.avatar} />
-							<Typography>{memo}</Typography>
-						</Stack>
-					</Stack>
-				</Box>
-				{/* <Paper square variant='outlined' sx={{ p: 2, borderLeft: 'none', borderRight: 'none', borderBottom: 'none' }}>
-					Hello
-				</Paper> */}
-			</Stack>
-		</Popover>
+											<IconButton size="small" sx={{ ml: 1 }} onClick={() => props.onClose()}>
+												<Close fontSize="small" />
+											</IconButton>
+										</Stack>
+									</Stack>
+									<Stack sx={{ textAlign: 'center' }} alignItems="center">
+										<Typography
+											variant="h3"
+											sx={(theme) => ({
+												color: isNetPositive ? theme.palette.success.main : undefined,
+												mb: 0.5,
+											})}>
+											{getPriceString(netAmount)}
+										</Typography>
+										<Stack direction="row" gap={1}>
+											<AvatarIcon avatar={category?.avatar} />
+											<Typography>{memo}</Typography>
+										</Stack>
+									</Stack>
+								</Box>
+								{/* <Paper square variant='outlined' sx={{ p: 2, borderLeft: 'none', borderRight: 'none', borderBottom: 'none' }}>
+									Hello
+								</Paper> */}
+							</Stack>
+						</Paper>
+					</Fade>
+				</ClickAwayListener>
+			)}
+		</Popper>
 	)
 }

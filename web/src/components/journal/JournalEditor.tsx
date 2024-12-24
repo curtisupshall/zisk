@@ -61,6 +61,10 @@ export default function JournalEditor() {
 		})
 	}
 
+	const handleDoubleClickListItem = (_event: MouseEvent<any>, entry: JournalEntry) => {
+		journalContext.editJournalEntry(entry)
+	}
+
 	const handleDeselectListItem = () => {
 		setSelectedEntry((prev) => {
 			const next = {
@@ -102,11 +106,6 @@ export default function JournalEditor() {
 		}
 	}
 
-	// const handleSaveEntry = () => {
-	// 	journalEntryContext.getEnhancedJournalEntriesQuery.refetch()
-	// 	handleDeselectListItem()
-	// }
-
 	// show all docs
 	useEffect(() => {
 		const db = getDatabaseClient()
@@ -131,7 +130,11 @@ export default function JournalEditor() {
 				)}
 				<JournalHeader reverseActionOrder />
 				<Divider />
-				<JournalEntryList journalRecordGroups={journalGroups} onClickListItem={handleClickListItem} />
+				<JournalEntryList
+					journalRecordGroups={journalGroups}
+					onClickListItem={handleClickListItem}
+					onDoubleClickListItem={handleDoubleClickListItem}
+				/>
 			</Box>
 		</>
 	)

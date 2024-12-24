@@ -16,6 +16,7 @@ import {
 	TableRowProps,
 	TableCellProps,
 	TableBodyProps,
+	Grow,
 } from '@mui/material'
 import React, { useContext } from 'react'
 
@@ -25,10 +26,10 @@ import AvatarIcon from '@/components/icon/AvatarIcon'
 import { getPriceString } from '@/utils/string'
 import CategoryChip from '../icon/CategoryChip'
 import QuickJournalEditor from './QuickJournalEditor'
-import { Flag } from '@mui/icons-material'
+import { Flag, LocalOffer } from '@mui/icons-material'
 import { JournalContext } from '@/contexts/JournalContext'
 import { PLACEHOLDER_UNNAMED_JOURNAL_ENTRY_MEMO } from '@/constants/journal'
-import { calculateNetAmount } from '@/utils/journal'
+import { calculateNetAmount, journalEntryHasTags, journalEntryIsFlagged } from '@/utils/journal'
 
 const TableRow = (props: TableRowProps) => {
 	const { sx, ...rest } = props
@@ -85,6 +86,7 @@ const TableBody = (props: TableBodyProps) => {
 interface JournalEntryListProps {
 	journalRecordGroups: Record<string, JournalEntry[]>
 	onClickListItem: (event: any, entry: JournalEntry) => void
+	onDoubleClickListItem: (event: any, entry: JournalEntry) => void
 }
 
 const JournalEntryDate = ({ day, isToday }: { day: dayjs.Dayjs; isToday: boolean }) => {
@@ -177,19 +179,30 @@ export default function JournalEntryList(props: JournalEntryListProps) {
 													: undefined
 												const netAmount = calculateNetAmount(entry)
 												const isNetPositive = netAmount > 0
+												const isFlagged = journalEntryIsFlagged(entry)
+												const hasTags = journalEntryHasTags(entry)
 
 												return (
 													<TableRow
 														key={entry._id}
-														onClick={(event) => props.onClickListItem(event, entry)}>
+														onClick={(event) => props.onClickListItem(event, entry)}
+														onDoubleClick={(event) => props.onDoubleClickListItem(event, entry)}
+													>
 														<TableCell sx={{ width: '0%', borderBottom: 'none' }}>
 															<AvatarIcon avatar={category?.avatar} compact={isSmall} />
 														</TableCell>
-														<TableCell sx={{ width: '0%' }}>
-															<Flag sx={{ display: 'block' }} />
-														</TableCell>
 														<TableCell sx={{ width: '40%' }}>
 															<ListItemText>{entry.memo || PLACEHOLDER_UNNAMED_JOURNAL_ENTRY_MEMO}</ListItemText>
+														</TableCell>
+														<TableCell sx={{ width: '0%' }}>
+															<Stack direction='row'>
+																<Grow in={isFlagged}>
+																	<Flag sx={{ display: 'block' }} />
+																</Grow>
+																<Grow in={hasTags}>
+																	<LocalOffer sx={{ display: 'block' }} />
+																</Grow>
+															</Stack>
 														</TableCell>
 														<TableCell align="right" sx={{ width: '10%' }}>
 															<Typography

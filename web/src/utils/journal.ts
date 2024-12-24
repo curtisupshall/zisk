@@ -1,9 +1,11 @@
 import {
 	EntryArtifact,
+	ReservedTagKey,
 	type JournalEntry,
 } from '@/types/schema'
 import { generateArtifactId, generateJournalEntryId } from './id'
 import dayjs from 'dayjs'
+import { RESERVED_TAGS } from '@/constants/tags'
 
 /**
  * Strips optional fields from a JournalEntry object
@@ -96,4 +98,14 @@ export const makeEntryArtifact = (formData: Partial<EntryArtifact>, journalId: s
 	}
 
 	return entryArtifact
+}
+
+export const journalEntryHasTags = (entry: JournalEntry): boolean => {
+	const entryTagIds = entry.tagIds ?? []
+	return entryTagIds.length > 0 && entryTagIds.some((tagId) => !ReservedTagKey.options.includes(tagId as ReservedTagKey))
+}
+
+export const journalEntryIsFlagged = (entry: JournalEntry): boolean => {
+	const entryTagIds = entry.tagIds ?? []
+	return entryTagIds.some((tagId) => tagId === RESERVED_TAGS.FLAGGED._id)
 }
