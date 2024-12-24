@@ -90,7 +90,7 @@ export default function EntryTagSelector(props: EntryTagSelectorProps) {
             {selectedEntryTags.length === 0 ? (
                 <Typography sx={{ mt: -1 }} variant='body2' color='textSecondary'>
                     <span>No tags — </span>
-                    <Link onClick={() => setOpen(true)} sx={{ cursor: 'pointer' }}>Add one</Link>
+                    <Link onClick={() => setOpen(true)}>Add one</Link>
                 </Typography>
             ) : (
                 <Stack direction='row' alignItems='flex-start' gap={1} sx={{ flexWrap: 'wrap', mx: -0.5 }}>
@@ -129,7 +129,7 @@ export default function EntryTagSelector(props: EntryTagSelectorProps) {
                                         No tags
                                     </Typography>
                                 ) : (
-                                    <Link onClick={() => createEntryTagWithValue()} sx={{ cursor: 'pointer' }}>
+                                    <Link onClick={() => createEntryTagWithValue()}>
                                         Create new tag &quot;{searchValue}&quot;
                                     </Link>
                                 )

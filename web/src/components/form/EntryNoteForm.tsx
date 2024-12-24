@@ -72,7 +72,7 @@ export default function EntryNoteForm() {
                 <FormHelperText sx={{ ml: 0 }}>
                     <Link
                         onClick={() => handleRemoveNotes()}
-                        sx={{ cursor: 'pointer', ml: 0, color: 'inherit' }}
+                        sx={{ ml: 0, color: 'inherit' }}
                     >
                         Remove
                     </Link>

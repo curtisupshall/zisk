@@ -70,6 +70,13 @@ const appTheme = createTheme({
 				},
 			},
 		},
+		MuiLink: {
+			styleOverrides: {
+				root: {
+					cursor: 'pointer',
+				}
+			}
+		}
 	},
 })
 

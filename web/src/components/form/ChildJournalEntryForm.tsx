@@ -86,7 +86,7 @@ export default function ChildJournalEntryForm() {
             </Stack>
             {children.length === 0 && (
                 <Typography variant='body2' color='textSecondary'>
-                    No sub-entries. <Link onClick={() => handleAddChildEntry()} sx={{ cursor: 'pointer' }}>Click to add one.</Link>
+                    No sub-entries. <Link onClick={() => handleAddChildEntry()}>Click to add one.</Link>
                 </Typography>
             )}
             <Stack mt={2} mx={-1} gap={2}>

@@ -124,7 +124,7 @@ export default function EntryArtifactsForm() {
             </Stack>
             {artifacts.length === 0 && (
                 <Typography variant='body2' color='textSecondary'>
-                    No attachments. <Link onClick={() => handleAddArtifact()} sx={{ cursor: 'pointer' }}>Click to add one.</Link>
+                    No attachments. <Link onClick={() => handleAddArtifact()}>Click to add one.</Link>
                 </Typography>
             )}
             <Stack mt={2} mx={-1} spacing={1}>
