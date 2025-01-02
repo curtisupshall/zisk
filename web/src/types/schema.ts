@@ -149,9 +149,54 @@ export const EntryTag = DocumentMetadata.merge(BelongsToJournal).merge(CreateEnt
 
 export type EntryTag = z.output<typeof EntryTag>
 
+export const CloudSyncingStrategory = z.object({
+	strategy: z.literal('CLOUD'),
+	user: z.object({
+		username: z.string(),
+		avatar: Avatar,
+	})
+})
+
+export type CloudSyncingStrategory = z.output<typeof CloudSyncingStrategory>
+
+export const LocalSyncingStrategory = z.object({
+	strategy: z.literal('LOCAL'),
+})
+
+export type LocalSyncingStrategory = z.output<typeof LocalSyncingStrategory>
+
+export const CustomServerSyncingStrategory = CloudSyncingStrategory.merge(z.object({
+	strategy: z.literal('CUSTOM'),
+	serverUrl: z.string(),
+}))
+
+export type CustomServerSyncingStrategory = z.output<typeof CustomServerSyncingStrategory>
+
+export const SyncingStrategy = z.union([
+	CloudSyncingStrategory,
+	LocalSyncingStrategory,
+	CustomServerSyncingStrategory,
+])
+
+export type SyncingStrategy = z.output<typeof SyncingStrategy>
+
+export const ZiskSettings = z.object({
+	appearance: z.object({
+		// theme: z.union([z.literal('LIGHT'), z.literal('DARK'), z.literal('SYSTEM')]),
+		// animations: z.union([z.literal('NORMAL'), z.literal('FAST'), z.literal('OFF')]),
+		menuExpanded: z.boolean(),
+	}),
+	syncingStrategy: SyncingStrategy,
+})
+
+export type ZiskSettings = z.output<typeof ZiskSettings>
+
 export const ZiskMeta = IdentifierMetadata.merge(
 	z.object({
+		type: z.literal('ZISK_META'),
 		activeJournalId: z.string().nullable(),
+		settings: ZiskSettings,
+		createdAt: z.string(),
 	})
 )
 

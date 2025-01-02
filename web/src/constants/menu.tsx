@@ -1,4 +1,4 @@
-import { Category, Insights, ReceiptLong } from '@mui/icons-material'
+import { Category, Insights, ReceiptLong, Settings } from '@mui/icons-material'
 import { ReactNode } from 'react'
 
 type NavMenuItem = {
@@ -30,5 +30,11 @@ export const APP_MENU: Record<string, NavMenuItem> = {
 		label: 'Categories',
 		description: 'Create spending categories',
 		pathPattern: /\/categories(\/.*)?$/,
+	},
+	'/settings': {
+		icon: <Settings fontSize="small" />,
+		label: 'Settings',
+		description: 'Manage journals and edit Zisk settings',
+		pathPattern: /\/settings(\/.*)?$/,
 	},
 }

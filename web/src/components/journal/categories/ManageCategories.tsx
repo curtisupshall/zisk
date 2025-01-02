@@ -12,6 +12,7 @@ import { Add, Search } from '@mui/icons-material'
 import {
 	Button,
 	Divider,
+	Link as MuiLink,
 	ListItem,
 	ListItemIcon,
 	MenuList,
@@ -75,7 +76,13 @@ export default function ManageCategories() {
 					onSaved={() => getCategoriesQuery.refetch()}
 				/>
 			)}
-			<Stack gap={3}>
+			<Stack mb={4} gap={0.5}>
+				<Typography variant='h4'>Categories</Typography>
+				{/* <Typography variant='body2'>
+					Manage categories to organize your journal entries.
+				</Typography> */}
+			</Stack>
+			<Stack gap={2}>
 				<Stack direction="row" justifyContent="space-between" alignItems="center">
 					<TextField
 						slotProps={{
@@ -90,45 +97,51 @@ export default function ManageCategories() {
 						Add Category
 					</Button>
 				</Stack>
-				<Paper sx={(theme) => ({ borderRadius: theme.spacing(2) })}>
+				<Paper sx={(theme) => ({ borderRadius: theme.spacing(1) })}>
 					<Stack p={2} direction="row" justifyContent="space-between" alignItems="center">
 						<Typography>
 							<>{categories.length} {p(categories.length, 'categor', 'y', 'ies')}</>
 						</Typography>
 					</Stack>
 					<Divider />
-					<MenuList>
-						{Object.values(getCategoriesQuery.data).map((category) => {
-							return (
-								<ListItem
-									key={category._id}
-									secondaryAction={
-										<Stack direction='row' gap={1}>
-											<Button
-												color='primary'
-												onClick={() => handleSelectCategoryForEdit(category)}
-											>
-												Edit
-											</Button>
-											<Button
-												color='error'
-												onClick={() => handleDeleteCategory(category)}
-											>
-												Delete
-											</Button>
-										</Stack>
-									}
-								>
-									<ListItemIcon>
-										<AvatarIcon avatar={category?.avatar} />
-									</ListItemIcon>
-									<Link href={generateCategoryLink(category)}>
-										<CategoryChip category={category} contrast />
-									</Link>
-								</ListItem>
-							)
-						})}
-					</MenuList>
+					{Object.values(getCategoriesQuery.data).length === 0 ? (
+						<Typography align="center" variant='body2' px={2} py={3}>
+							No categories. <MuiLink sx={{ pointer: 'cursor' }} onClick={() => setShowCreateCategoryModal(true)}>Create one</MuiLink>
+						</Typography>
+					) : (
+						<MenuList>
+							{Object.values(getCategoriesQuery.data).map((category) => {
+								return (
+									<ListItem
+										key={category._id}
+										secondaryAction={
+											<Stack direction='row' gap={1}>
+												<Button
+													color='primary'
+													onClick={() => handleSelectCategoryForEdit(category)}
+												>
+													Edit
+												</Button>
+												<Button
+													color='error'
+													onClick={() => handleDeleteCategory(category)}
+												>
+													Delete
+												</Button>
+											</Stack>
+										}
+									>
+										<ListItemIcon>
+											<AvatarIcon avatar={category?.avatar} />
+										</ListItemIcon>
+										<Link href={generateCategoryLink(category)}>
+											<CategoryChip category={category} contrast />
+										</Link>
+									</ListItem>
+								)
+							})}
+						</MenuList>
+					)}
 				</Paper>
 			</Stack>
 		</>

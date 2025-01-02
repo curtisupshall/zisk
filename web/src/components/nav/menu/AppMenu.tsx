@@ -128,7 +128,7 @@ export default function AppMenu(props: AppMenuProps) {
 
 	const MenuItemList = ({ children }: { children?: ReactNode }) => {
 		return (
-			<MenuList sx={(theme) => ({ pr: 3, minWidth: theme.spacing(24) })}>
+			<MenuList sx={(theme) => ({ pr: 2, minWidth: theme.spacing(24) })}>
 				{children}
 				{Object.entries(APP_MENU).map(([slug, menuItem]) => {
 					const selected = menuItem.pathPattern.test(pathname)

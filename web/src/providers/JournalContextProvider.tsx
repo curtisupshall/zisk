@@ -4,10 +4,11 @@ import JournalEntryModal from '@/components/modal/JournalEntryModal'
 import { PLACEHOLDER_UNNAMED_JOURNAL_NAME } from '@/constants/journal'
 import { JournalContext } from '@/contexts/JournalContext'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
+import { ZiskContext } from '@/contexts/ZiskContext'
 import { updateActiveJournal, createJournalEntry } from '@/database/actions'
 import { getDatabaseClient } from '@/database/client'
-import { getCategories, getEntryTags, getJournals, getOrCreateZiskMeta } from '@/database/queries'
-import { Category, EntryTag, JournalEntry, JournalMeta, ZiskMeta } from '@/types/schema'
+import { getCategories, getEntryTags, getJournals } from '@/database/queries'
+import { Category, EntryTag, JournalEntry, JournalMeta } from '@/types/schema'
 import { makeJournalEntry } from '@/utils/journal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
@@ -38,15 +39,9 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 	const [selectedJournal, setSelectedJournal] = useState<JournalMeta | null>(null)
 
 	const { snackbar } = useContext(NotificationsContext)
+	const ziskContext = useContext(ZiskContext)
 
 	const hasSelectedJournal = Boolean(activeJournal)
-
-	const getZiskMetaQuery = useQuery<ZiskMeta | null>({
-		queryKey: ['ziskMeta'],
-		queryFn: getOrCreateZiskMeta,
-		initialData: null,
-		enabled: true,
-	})
 
 	const getJournalsQuery = useQuery<Record<JournalMeta['_id'], JournalMeta>>({
 		queryKey: ['journals'],
@@ -133,16 +128,16 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 	}, [activeJournal])
 
 	useEffect(() => {
-		if (!getZiskMetaQuery.data || !getJournalsQuery.data) {
+		if (!ziskContext.data || !getJournalsQuery.data) {
 			return
-		} else if (!getZiskMetaQuery.isFetched || !getJournalsQuery.isFetched) {
+		} else if (!getJournalsQuery.isFetched) {
 			return
 		}
 		const numJournals = Object.keys(getJournalsQuery.data).length
 		if (numJournals === 0) {
 			promptCreateJournal()
 		} else {
-			const activeJournalId = getZiskMetaQuery.data.activeJournalId
+			const activeJournalId = ziskContext.data.activeJournalId
 			const journal = activeJournalId ? getJournalsQuery.data[activeJournalId] : null
 			if (!journal) {
 				promptSelectJournal()
@@ -150,7 +145,7 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 				setActiveJournal(journal)
 			}
 		}
-	}, [getZiskMetaQuery.data, getZiskMetaQuery.isFetched, getJournalsQuery.data, getJournalsQuery.isFetched])
+	}, [ziskContext.data, getJournalsQuery.data, getJournalsQuery.isFetched])
 
 	const journalEntryForm = useForm<JournalEntry>({
 		defaultValues: {},

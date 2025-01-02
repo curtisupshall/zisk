@@ -1,9 +1,25 @@
-import { ZISK_META_KEY } from '@/constants/database'
-import { ZiskMeta } from '@/types/schema'
+import { ZiskMeta, ZiskSettings } from '@/types/schema'
+import { generateGenericUniqueId } from './id'
 
-export const createDefaultZiskMeta = (): ZiskMeta => {
+export const makeDefaultZiskSettings = (): ZiskSettings => {
 	return {
-		_id: ZISK_META_KEY,
+		appearance: {
+			// theme: 'DARK',
+			// animations: 'NORMAL',
+			menuExpanded: true,
+		},
+		syncingStrategy: {
+			strategy: 'LOCAL',
+		},
+	}
+}
+
+export const makeDefaultZiskMeta = (): ZiskMeta => {
+	return {
+		_id: generateGenericUniqueId(),
 		activeJournalId: null,
+		type: 'ZISK_META',
+		settings: makeDefaultZiskSettings(),
+		createdAt: new Date().toISOString(),
 	}
 }

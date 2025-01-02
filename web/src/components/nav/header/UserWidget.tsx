@@ -2,7 +2,6 @@
 
 import { Menu as MenuIcon } from '@mui/icons-material'
 import { Avatar, Badge, Box, Button, Menu, MenuItem, Typography } from '@mui/material'
-import { useSession, signIn, signOut } from 'next-auth/react'
 import { useState } from 'react'
 
 export default function UserWidget() {
@@ -12,21 +11,15 @@ export default function UserWidget() {
 		setAnchorEl(null)
 	}
 
-	const session = useSession()
+	const isLoggedIn = false
 
-	const isLoggedIn = session.data?.user ? true : false
-
-	const email = session.data?.user?.email
-	const image = session.data?.user?.image
-	const name = session.data?.user?.name
+	const name = ''
 
 	const handleSignIn = () => {
-		signIn()
 		// handleClose();
 	}
 
 	const handleSignOut = () => {
-		signOut()
 		// handleClose();
 	}
 
@@ -46,7 +39,6 @@ export default function UserWidget() {
 							ml: 1,
 							color: theme.palette.text.primary,
 						})}
-						src={image ?? ''}
 					/>
 				</Badge>
 			</Button>
@@ -70,7 +62,6 @@ export default function UserWidget() {
 					<Typography variant="subtitle1">
 						<strong>{name}</strong>
 					</Typography>
-					<Typography variant="body2">{email}</Typography>
 				</Box>
 				{isLoggedIn ? (
 					<MenuItem onClick={() => handleSignOut()}>Sign Out</MenuItem>

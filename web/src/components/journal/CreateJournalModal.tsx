@@ -33,7 +33,9 @@ export default function CreateJournalModal(props: CreateJournalModalProps) {
 
 	const handleSubmit = async (formData: CreateJournalMeta) => {
 		// Create a new journal
-		const newJournal = await createJournal(formData)
+		const newJournal = await createJournal({
+			...formData,
+		})
 
 		// Refetch journals
 		journalContext.getJournalsQuery.refetch()

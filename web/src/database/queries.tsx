@@ -9,8 +9,7 @@ import {
 import { getDatabaseClient } from './client'
 import { JournalEditorView } from '@/components/journal/JournalEditor'
 import dayjs from 'dayjs'
-import { ZISK_META_KEY } from '@/constants/database'
-import { createDefaultZiskMeta } from '@/utils/database'
+import { makeDefaultZiskMeta } from '@/utils/database'
 
 const db = getDatabaseClient()
 
@@ -72,20 +71,19 @@ export const getEntryTags = async (journalId: string): Promise<Record<EntryTag['
 }
 
 export const getOrCreateZiskMeta = async (): Promise<ZiskMeta> => {
-	try {
-		// Attempt to fetch the meta document by its key
-		const meta = (await db.get(ZISK_META_KEY)) as ZiskMeta
-		return meta
-	} catch (error: any) {
-		if (error.status === 404) {
-			// If not found, create a default meta document
-			const meta: ZiskMeta = { ...createDefaultZiskMeta(), _id: ZISK_META_KEY }
-			await db.put(meta)
-			return meta
-		}
-		// Re-throw other errors
-		throw error
+	// Attempt to fetch the meta document by its key
+	const results = await db.find({
+		selector: {
+			type: 'ZISK_META',
+		},
+	})
+	if (results.docs.length > 0) {
+		return results.docs[0] as unknown as ZiskMeta
 	}
+
+	const meta: ZiskMeta = { ...makeDefaultZiskMeta() }
+	await db.put(meta)
+	return meta
 }
 
 export const getJournals = async (): Promise<Record<JournalMeta['_id'], JournalMeta>> => {

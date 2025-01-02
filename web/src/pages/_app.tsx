@@ -3,14 +3,13 @@ import { CssBaseline } from '@mui/material'
 import appTheme from '@/components/theme/theme'
 import { montserrat } from '@/fonts/montserrat'
 import Head from 'next/head'
-import { SessionProvider } from 'next-auth/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import NotificationsProvider from '@/providers/NotificationsProvider'
 
 // Imports styles
 import '@/styles/main.scss'
-import RemoteContextProvider from '@/providers/RemoteContextProvider'
 import JournalContextProvider from '@/providers/JournalContextProvider'
+import ZiskContextProvider from '@/providers/ZiskContextProvider'
 
 const queryClient = new QueryClient()
 
@@ -32,11 +31,11 @@ function MyApp(props: any) {
 				<main id="root" className={montserrat.className}>
 					<NotificationsProvider>
 						<QueryClientProvider client={queryClient}>
-							<JournalContextProvider>
-								<SessionProvider session={session}>
-									<RemoteContextProvider>{getLayout(<Component {...rest} />)}</RemoteContextProvider>
-								</SessionProvider>
-							</JournalContextProvider>
+							<ZiskContextProvider>
+								<JournalContextProvider>
+									{getLayout(<Component {...rest} />)}
+								</JournalContextProvider>
+							</ZiskContextProvider>
 						</QueryClientProvider>
 					</NotificationsProvider>
 				</main>

@@ -7,6 +7,7 @@ import {
 	JournalEntry,
 	JournalMeta,
 	ZiskDocument,
+	ZiskSettings,
 } from '@/types/schema'
 import { getDatabaseClient } from './client'
 import { generateCategoryId, generateEntryTagId, generateJournalId } from '@/utils/id'
@@ -190,4 +191,13 @@ export const importJournal = async (archive: File) => {
 
 	const response = await db.bulkDocs(documents)
 	console.log('response', response)
+}
+
+export const updateSettings = (settings: ZiskSettings) => {
+	return getOrCreateZiskMeta().then((meta) => {
+		return db.put({
+			...meta,
+			settings,
+		})
+	})
 }

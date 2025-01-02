@@ -35,6 +35,13 @@ const appTheme = createTheme({
 		fontFamily: montserrat.style.fontFamily,
 	},
 	components: {
+		MuiBreadcrumbs: {
+            styleOverrides: {
+                li: {
+                    fontWeight: 600
+                }
+            }
+        },
 		MuiButton: {
 			styleOverrides: {
 				root: {
@@ -70,6 +77,29 @@ const appTheme = createTheme({
 				},
 			},
 		},
+		MuiLink: {
+			styleOverrides: {
+				root: {
+					cursor: 'pointer',
+				}
+			}
+		},
+		MuiTab: {
+            styleOverrides: {
+                root: {
+                    textTransform: 'none',
+                    minWidth: '0 !important',
+                },
+				
+            }
+        },
+		MuiToggleButton: {
+            styleOverrides: {
+                root: {
+                    'textTransform': 'none'
+                }
+            }
+        },
 	},
 })
 
