@@ -23,6 +23,7 @@ import { NotificationsContext } from "@/contexts/NotificationsContext";
 import { DEFAULT_AVATAR } from "../pickers/AvatarPicker";
 import { ZiskContext } from "@/contexts/ZiskContext";
 import { ZiskSettings } from "@/types/schema";
+import ServerSetupModal, { ZiskServerSetupForm } from "./ServerSetupModal";
 
 interface JoinServerModalProps {
     open: boolean
@@ -42,6 +43,7 @@ export default function JoinServerModal(props: JoinServerModalProps) {
     const [password, setPassword] = useState<string>('')
     const [serverNickname, setServerNickname] = useState<string>('')
     const [willUpdateSyncStrategy, setWillUpdateSyncStrategy] = useState<boolean>(true)
+    const [showSetupModal, setShowSetupModal] = useState<boolean>(false)
 
     const { snackbar } = useContext(NotificationsContext)
     const ziskContext = useContext(ZiskContext)
@@ -139,6 +141,10 @@ export default function JoinServerModal(props: JoinServerModalProps) {
         setLoadingSignIn(false)
     }
 
+    const handleSetupServer = async (formValues: ZiskServerSetupForm) => {
+        // await addUser... flips initialized => True
+    }
+
     const disableSignIn = !username || !password || !serverUrl || !serverHealthCheckOk || !serverUrl
 
     useEffect(() => {
@@ -146,113 +152,120 @@ export default function JoinServerModal(props: JoinServerModalProps) {
     }, [serverUrl])
 
     return (
-        <Dialog {...props} fullWidth maxWidth={'sm'}>
-            <DialogTitle>Join Server</DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    Text.
-                </DialogContentText>
-                <ToggleButtonGroup>
-                    <RadioToggleButton
-                        heading="Zisk Cloud"
-                        description="Zisk Cloud."
-                        value={'CLOUD'}
-                    />
-                    <RadioToggleButton
-                        heading="Zisk Server"
-                        description="A custom server."
-                        value={'SERVER'}
-                    />
+        <>
+            <ServerSetupModal
+                open={showSetupModal}
+                onClose={() => setShowSetupModal(false)}
+                onSubmit={handleSetupServer}
+            />
+            <Dialog {...props} fullWidth maxWidth={'sm'}>
+                <DialogTitle>Join Server</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Text.
+                    </DialogContentText>
+                    <ToggleButtonGroup>
+                        <RadioToggleButton
+                            heading="Zisk Cloud"
+                            description="Zisk Cloud."
+                            value={'CLOUD'}
+                        />
+                        <RadioToggleButton
+                            heading="Zisk Server"
+                            description="A custom server."
+                            value={'SERVER'}
+                        />
 
-                </ToggleButtonGroup>
-                <Stack mt={2} gap={1}>
-                    <TextField
-                        value={serverUrl}
-                        onChange={(event) => setServerUrl(event.target.value)}
-                        label='Server URL'
-                        placeholder='your.server.com'
-                        disabled={serverHealthCheckOk || loadingHealthCheck}
-                        fullWidth
-                        required
-                        error={serverHealthCheckError}
-                        helperText={serverHealthCheckError ? 'Failed to connect to server.' : undefined}
-                    />
-                    <Collapse in={!serverHealthCheckOk}>
-                        <LoadingButton
-                            variant='contained'
-                            onClick={() => handleCheckServerHealth()}
-                            loading={loadingHealthCheck}
-                            disabled={serverHealthCheckOk || !isValidUrl(serverUrl)}
-                        >
-                            Check Server
-                        </LoadingButton>
-                    </Collapse>
-                    <Collapse in={serverHealthCheckOk}>
-                        <Paper variant='outlined' sx={(theme) => ({ background: 'none', borderRadius: theme.shape.borderRadius, alignSelf: 'flex-start' })}>
-                            <ServerWidget
-                                serverName={serverData?.serverName}
-                                serverNickname={serverNickname}
-                                serverUrl={serverUrl}
-                                userName={username}
-                                status={serverData?.status}
-                                version={serverData?.version}
-                                actions={
-                                    <Button
-                                        onClick={() => setServerHealthCheckOk(false)}
-                                        color='error'
-                                        startIcon={<LeakRemove />}
-                                    >
-                                        Disconnect
-                                    </Button>
-                                }
-                            />
-                        </Paper>
-                    </Collapse>
-                    <TextField
-                        label='Username'
-                        value={username}
-                        onChange={(event) => setUsername(event.target.value)}
-                        fullWidth
-                        required
-                    />
-                    <TextField
-                        label='Password'
-                        type='password'
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        fullWidth
-                        required
-                    />
-                    <TextField
-                        label='Server Display Name (Optional)'
-                        value={serverNickname}
-                        onChange={(event) => setServerNickname(event.target.value)}
-                        fullWidth
-                        placeholder={serverData?.serverName || undefined}
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={willUpdateSyncStrategy}
-                                onChange={() => setWillUpdateSyncStrategy(!willUpdateSyncStrategy)}
-                            />
-                        }
-                        label="Set my syncing strategy to this server"
-                    />
-                </Stack>
-            </DialogContent>
-            <DialogActions>
-                <LoadingButton
-                    variant='contained'
-                    startIcon={<LeakAdd />}
-                    onClick={() => handleSignIn()}
-                    disabled={disableSignIn}
-                    loading={loadingSignIn}
-                >
-                    Join Server
-                </LoadingButton>
-                <Button onClick={() => props.onClose()}>Close</Button>
-            </DialogActions>
-        </Dialog>
+                    </ToggleButtonGroup>
+                    <Stack mt={2} gap={1}>
+                        <TextField
+                            value={serverUrl}
+                            onChange={(event) => setServerUrl(event.target.value)}
+                            label='Server URL'
+                            placeholder='your.server.com'
+                            disabled={serverHealthCheckOk || loadingHealthCheck}
+                            fullWidth
+                            required
+                            error={serverHealthCheckError}
+                            helperText={serverHealthCheckError ? 'Failed to connect to server.' : undefined}
+                        />
+                        <Collapse in={!serverHealthCheckOk}>
+                            <LoadingButton
+                                variant='contained'
+                                onClick={() => handleCheckServerHealth()}
+                                loading={loadingHealthCheck}
+                                disabled={serverHealthCheckOk || !isValidUrl(serverUrl)}
+                            >
+                                Check Server
+                            </LoadingButton>
+                        </Collapse>
+                        <Collapse in={serverHealthCheckOk}>
+                            <Paper variant='outlined' sx={(theme) => ({ background: 'none', borderRadius: theme.shape.borderRadius, alignSelf: 'flex-start' })}>
+                                <ServerWidget
+                                    serverName={serverData?.serverName}
+                                    serverNickname={serverNickname}
+                                    serverUrl={serverUrl}
+                                    userName={username}
+                                    status={serverData?.status}
+                                    version={serverData?.version}
+                                    actions={
+                                        <Button
+                                            onClick={() => setServerHealthCheckOk(false)}
+                                            color='error'
+                                            startIcon={<LeakRemove />}
+                                        >
+                                            Disconnect
+                                        </Button>
+                                    }
+                                />
+                            </Paper>
+                        </Collapse>
+                        <TextField
+                            label='Username'
+                            value={username}
+                            onChange={(event) => setUsername(event.target.value)}
+                            fullWidth
+                            required
+                        />
+                        <TextField
+                            label='Password'
+                            type='password'
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                            fullWidth
+                            required
+                        />
+                        <TextField
+                            label='Server Display Name (Optional)'
+                            value={serverNickname}
+                            onChange={(event) => setServerNickname(event.target.value)}
+                            fullWidth
+                            placeholder={serverData?.serverName || undefined}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={willUpdateSyncStrategy}
+                                    onChange={() => setWillUpdateSyncStrategy(!willUpdateSyncStrategy)}
+                                />
+                            }
+                            label="Set my syncing strategy to this server"
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <LoadingButton
+                        variant='contained'
+                        startIcon={<LeakAdd />}
+                        onClick={() => handleSignIn()}
+                        disabled={disableSignIn}
+                        loading={loadingSignIn}
+                    >
+                        Join Server
+                    </LoadingButton>
+                    <Button onClick={() => props.onClose()}>Close</Button>
+                </DialogActions>
+            </Dialog>
+        </>
     )
 }
