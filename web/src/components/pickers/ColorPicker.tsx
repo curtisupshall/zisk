@@ -120,6 +120,8 @@ export const Swatch = (props: SwatchProps) => {
 export interface ColorPickerProps {
 	color: string | null
 	onChange: (color: string) => void
+	swatches?: SwatchProps[]
+	disabled?: boolean
 }
 
 const DEFAULT_COLOR = muiColors['red'][400]
@@ -127,17 +129,23 @@ const DEFAULT_COLOR = muiColors['red'][400]
 export default function ColorPicker(props: ColorPickerProps) {
 	const color = props.color || DEFAULT_COLOR
 
+	const swatches = props.swatches ?? sortedColors
+		.map(([colorName, shade]) => {
+			const color = muiColors[colorName][shade]
+			const colorNameParts = [colorShadeLabels[shade], colorNameLabels[colorName]].filter(Boolean)
+			if (colorNameParts[1]) {
+				colorNameParts[1] = String(colorNameParts[1]).toLowerCase()
+			}
+
+			return { color,  name: colorNameParts.join(' ') }
+		})
+
 	return (
 		<FormControl>
-			{/* {props.label && (
-                <InputLabel id={`${props.id}-label`}>
-                    {props.label}
-                </InputLabel>
-            )} */}
 			<Select
 				size="small"
-				// label={props.label}
 				value={color}
+				disabled={props.disabled}
 				onChange={(event) => {
 					props.onChange?.(event.target.value)
 				}}
@@ -165,17 +173,17 @@ export default function ColorPicker(props: ColorPickerProps) {
 						},
 					},
 				}}>
-				{sortedColors.map(([colorName, shade]) => {
-					const color = muiColors[colorName][shade]
-					const colorNameParts = [colorShadeLabels[shade], colorNameLabels[colorName]].filter(Boolean)
-					if (colorNameParts[1]) {
-						colorNameParts[1] = String(colorNameParts[1]).toLowerCase()
-					}
+				{swatches.map((swatch: SwatchProps) => {
+					// const color = muiColors[colorName][shade]
+					// const colorNameParts = [colorShadeLabels[shade], colorNameLabels[colorName]].filter(Boolean)
+					// if (colorNameParts[1]) {
+						// colorNameParts[1] = String(colorNameParts[1]).toLowerCase()
+					// }
 
 					return (
 						<MenuItem
-							value={color}
-							key={color}
+							value={swatch.color}
+							key={swatch.color}
 							disableTouchRipple
 							sx={{
 								p: 0,
@@ -192,7 +200,7 @@ export default function ColorPicker(props: ColorPickerProps) {
 									margin: 0,
 								},
 							}}>
-							<Swatch color={muiColors[colorName][shade]} name={colorNameParts.join(' ')} />
+							<Swatch {...swatch} />
 						</MenuItem>
 					)
 				})}
