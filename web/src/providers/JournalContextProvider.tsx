@@ -7,8 +7,8 @@ import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { ZiskContext } from '@/contexts/ZiskContext'
 import { updateActiveJournal, createJournalEntry } from '@/database/actions'
 import { getDatabaseClient } from '@/database/client'
-import { getCategories, getEntryTags, getJournals } from '@/database/queries'
-import { Category, EntryTag, JournalEntry, JournalMeta } from '@/types/schema'
+import { getAccounts, getCategories, getEntryTags, getJournals } from '@/database/queries'
+import { Account, Category, EntryTag, JournalEntry, JournalMeta } from '@/types/schema'
 import { makeJournalEntry } from '@/utils/journal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
@@ -68,6 +68,18 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 				return {}
 			}
 			return getEntryTags(activeJournal._id)
+		},
+		initialData: {},
+		enabled: hasSelectedJournal,
+	})
+
+	const getAccountsQuery = useQuery<Record<Account['_id'], Account>>({
+		queryKey: ['accounts'],
+		queryFn: async () => {
+			if (!activeJournal) {
+				return {}
+			}
+			return getAccounts(activeJournal._id)
 		},
 		initialData: {},
 		enabled: hasSelectedJournal,
@@ -157,6 +169,7 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 			value={{
 				getCategoriesQuery,
 				getEntryTagsQuery,
+				getAccountsQuery,
 				showJournalEntryModal,
 				getJournalsQuery,
 				journal: activeJournal,

@@ -4,10 +4,10 @@ import { Box, FormHelperText, Stack, TextField } from '@mui/material'
 import { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import AvatarPicker from '../pickers/AvatarPicker'
-import { Avatar, Category, CreateCategory } from '@/types/schema'
+import { Avatar, Account, CreateAccount } from '@/types/schema'
 
-export default function CategoryForm() {
-	const { register, setValue, watch } = useFormContext<CreateCategory | Category>()
+export default function AccountForm() {
+	const { register, setValue, watch } = useFormContext<CreateAccount | Account>()
 
 	const currentIcon: Avatar | null = useMemo(() => {
 		const { avatar } = watch()
@@ -22,13 +22,13 @@ export default function CategoryForm() {
 		<Box>
 			<Stack gap={2}>
 				<Stack direction="row" alignItems="center" gap={2}>
-					<TextField {...register('label')} label="Label" placeholder="Groceries" fullWidth multiline />
+					<TextField {...register('label')} label="Label" placeholder="Visa 4321" fullWidth multiline />
 					<AvatarPicker value={currentIcon} onChange={(avatar) => setValue('avatar', avatar, { shouldDirty: true })} />
 				</Stack>
 				<TextField
 					{...register('description')}
 					label="Description"
-					placeholder="Groceries or household foodstuffs"
+					placeholder="Capital One Visa Infinite (4321)"
 					fullWidth
 					multiline
 					rows={3}

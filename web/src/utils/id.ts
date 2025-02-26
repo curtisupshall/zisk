@@ -8,6 +8,10 @@ export const generateJournalEntryId = () => {
 	return `U${nanoid()}`
 }
 
+export const generateAccountId = () => {
+	return `U${nanoid()}`
+}
+
 export const generateCategoryId = () => {
 	return `U${nanoid()}`
 }

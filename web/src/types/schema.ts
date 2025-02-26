@@ -4,6 +4,8 @@ export const IdentifierMetadata = z.object({
 	_id: z.string(),
 })
 
+export type IdentifierMetadata = z.output<typeof IdentifierMetadata>
+
 export const BelongsToJournal = z.object({
     journalId: z.string(),
 })
@@ -23,6 +25,8 @@ export const DocumentMetadata = IdentifierMetadata.merge(
 		type: z.string(),
 	})
 )
+
+export type DocumentMetadata = z.output<typeof DocumentMetadata>
 
 export const AvatarVariant = z.enum(['TEXT', 'PICTORIAL', 'IMAGE'])
 
@@ -92,6 +96,7 @@ export const BaseJournalEntry = DocumentMetadata.merge(BelongsToJournal).merge(A
 		memo: z.string(),
 		tagIds: z.array(z.string()).optional(),
 		categoryIds: z.array(z.string()).optional(),
+		accountId: z.string().optional(),
 		date: z.string().optional(),
 		notes: z.string().optional(),
 		tasks: z.array(EntryTask).optional(),
@@ -159,6 +164,24 @@ export const EntryTag = DocumentMetadata.merge(BelongsToJournal).merge(CreateEnt
 )
 
 export type EntryTag = z.output<typeof EntryTag>
+
+export const CreateAccount = z.object({
+	label: z.string(),
+	description: z.string(),
+	avatar: Avatar,
+})
+
+export type CreateAccount = z.output<typeof CreateAccount>
+
+export const Account = DocumentMetadata.merge(BelongsToJournal).merge(CreateCategory).merge(
+	z.object({
+		type: z.literal('ACCOUNT'),
+		createdAt: z.string(),
+		updatedAt: z.string().nullable().optional(),
+	})
+)
+
+export type Account = z.output<typeof Account>
 
 export const CloudZiskServer = z.object({
 	serverType: z.literal('ZISK_CLOUD'),

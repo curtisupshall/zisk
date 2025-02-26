@@ -1,4 +1,5 @@
 import {
+	Account,
 	Category,
 	EntryArtifact,
 	EntryTag,
@@ -27,6 +28,20 @@ export const getCategories = async (journalId: string): Promise<Record<Category[
 	})
 
 	return Object.fromEntries((result.docs as Category[]).map((category) => [category._id, category]))
+}
+
+export const getAccounts = async (journalId: string): Promise<Record<Account['_id'], Account>> => {
+	const result = await db.find({
+		selector: {
+			'$and': [
+				{ type: 'ACCOUNT' },
+				{ journalId },
+			],
+		},
+		limit: ARBITRARY_MAX_FIND_LIMIT,
+	})
+
+	return Object.fromEntries((result.docs as Account[]).map((account) => [account._id, account]))
 }
 
 export const getJournalEntries = async (

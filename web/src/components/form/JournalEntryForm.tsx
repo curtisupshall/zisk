@@ -21,11 +21,13 @@ import { getJournalEntryWithAttachments } from '@/database/queries'
 import EntryTagSelector from '../input/EntryTagSelector'
 import EntryNoteForm from './EntryNoteForm'
 import EntryTasksForm from './EntryTasksForm'
+import AccountAutocomplete from '../input/AccountAutocomplete'
 
 export default function JournalEntryForm() {
 	const { setValue, control, register } = useFormContext<JournalEntry>()
 
 	const categoryIds = useWatch({ control, name: 'categoryIds' })
+	const accountId = useWatch({ control, name: 'accountId' })
 	const entryTagIds = useWatch({ control, name: 'tagIds' })
 	const attachments = useWatch({ control, name: '_attachments' }) ?? {}
 	const journalEntryId = useWatch({ control, name: '_id' })
@@ -63,22 +65,7 @@ export default function JournalEntryForm() {
 									maxRows={3}
 								/>
 							</Grid>
-							<Grid size={8}>
-								<Controller
-									control={control}
-									name="amount"
-									render={({ field }) => (
-										<AmountField
-											variant='filled'
-											{...field}
-											fullWidth
-											sx={{ flex: 1 }}
-											autoComplete="off"
-										/>
-									)}
-								/>
-							</Grid>
-							<Grid size={4}>
+							<Grid size={12}>
 								<Controller
 									control={control}
 									name="date"
@@ -101,6 +88,38 @@ export default function JournalEntryForm() {
 											/>
 										</LocalizationProvider>
 									)}
+								/>
+							</Grid>
+							<Grid size={8}>
+								<Controller
+									control={control}
+									name="amount"
+									render={({ field }) => (
+										<AmountField
+											variant='filled'
+											{...field}
+											fullWidth
+											sx={{ flex: 1 }}
+											autoComplete="off"
+										/>
+									)}
+								/>
+							</Grid>
+							<Grid size={4}>
+								<Controller
+									control={control}
+									name="accountId"
+									render={({ field }) => {
+										return (
+											<AccountAutocomplete
+												{...field}
+												value={accountId}
+												onChange={(_event, newValue) => {
+													setValue(field.name, newValue ?? undefined, { shouldDirty: true })
+												}}
+											/>
+										)
+									}}
 								/>
 							</Grid>
 						</Grid>					

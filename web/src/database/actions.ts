@@ -1,8 +1,11 @@
 import {
+	Account,
 	Category,
+	CreateAccount,
 	CreateCategory,
 	CreateEntryTag,
 	CreateJournalMeta,
+	DocumentMetadata,
 	EntryTag,
 	JournalEntry,
 	JournalMeta,
@@ -10,7 +13,7 @@ import {
 	ZiskSettings,
 } from '@/types/schema'
 import { getDatabaseClient, initializeDatabaseClient } from './client'
-import { generateCategoryId, generateEntryTagId, generateJournalId } from '@/utils/id'
+import { generateAccountId, generateCategoryId, generateEntryTagId, generateJournalId } from '@/utils/id'
 import { getOrCreateZiskMeta } from './queries'
 import JSZip from 'jszip'
 import FileSaver from 'file-saver'
@@ -83,6 +86,38 @@ export const createCategory = async (formData: CreateCategory, journalId: string
 	}
 
 	return db.put(category)
+}
+
+export const createAccount = async (formData: CreateAccount, journalId: string) => {
+	const category: Account = {
+		...formData,
+		type: 'ACCOUNT',
+		_id: generateAccountId(),
+		createdAt: new Date().toISOString(),
+		updatedAt: null,
+		journalId,
+	}
+
+	return db.put(category)
+}
+
+export const updateAccount = async (formData: Account) => {
+	return db.put({
+		...formData,
+		updatedAt: new Date().toISOString(),
+	})
+}
+
+export const deleteRecord = async <T extends DocumentMetadata>(record: T): Promise<T> => {
+	const fetchedRecord = await db.get(record._id)
+	await db.remove(fetchedRecord)
+	return fetchedRecord as unknown as T
+}
+
+export const restoreRecord = async <T extends DocumentMetadata>(record: T): Promise<void> => {
+	const newRecord = { ...record }
+	delete record._rev;
+	await db.put(newRecord)
 }
 
 export const updateCategory = async (formData: Category) => {

@@ -6,31 +6,30 @@ import { useContext } from 'react'
 import { JournalContext } from '@/contexts/JournalContext'
 import AvatarIcon from '../icon/AvatarIcon'
 
-export type CategoryAutocompleteProps = Partial<Omit<AutocompleteProps<string, true, false, false>, 'options'>>
+export type AccountAutocompleteProps = Partial<Omit<AutocompleteProps<string, false, false, false>, 'options'>>
 
-export default function CategoryAutocomplete(props: CategoryAutocompleteProps) {
+export default function AccountAutocomplete(props: AccountAutocompleteProps) {
 	const { loading, ...rest } = props
 
-	const { getCategoriesQuery } = useContext(JournalContext)
-	const { data, isLoading } = getCategoriesQuery
+	const { getAccountsQuery } = useContext(JournalContext)
+	const { data, isLoading } = getAccountsQuery
 
 	return (
 		<Autocomplete
 			loading={isLoading || loading}
 			options={Object.keys(data)}
-			multiple
-			renderInput={(params) => <TextField {...params} label={'Category'} />}
+			renderInput={(params) => <TextField {...params} label={'Account'} />}
 			getOptionLabel={(option) => data[option]?.label}
 			renderOption={(props, option) => {
 				const { key, ...optionProps } = props
-				const category = data[option]
+				const account = data[option]
 
 				return (
 					<ListItem dense key={key} {...optionProps}>
 						<ListItemIcon>
-							<AvatarIcon avatar={category?.avatar} />
+							<AvatarIcon avatar={account?.avatar} />
 						</ListItemIcon>
-						<ListItemText primary={category?.label} />
+						<ListItemText primary={account?.label} />
 					</ListItem>
 				)
 			}}

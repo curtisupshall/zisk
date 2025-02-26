@@ -1,4 +1,4 @@
-import { Category, Insights, ReceiptLong, Settings } from '@mui/icons-material'
+import { AccountBalance, Category, Insights, ReceiptLong, Settings } from '@mui/icons-material'
 import { ReactNode } from 'react'
 
 type NavMenuItem = {
@@ -30,6 +30,12 @@ export const APP_MENU: Record<string, NavMenuItem> = {
 		label: 'Categories',
 		description: 'Create spending categories',
 		pathPattern: /\/categories(\/.*)?$/,
+	},
+	'/accounts': {
+		icon: <AccountBalance fontSize="small" />,
+		label: 'Accounts and Transfers',
+		description: 'Manage accounts and transfers',
+		pathPattern: /\/accounts(\/.*)?$/,
 	},
 	'/settings': {
 		icon: <Settings fontSize="small" />,
