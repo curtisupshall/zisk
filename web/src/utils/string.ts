@@ -48,7 +48,7 @@ export const formatFileSize = (bytes: number): string => {
  * @returns
  */
 export const pluralize = (quantity: number, word: string, singularSuffix = '', pluralSuffix = 's') => {
-	return `${word}${quantity === 1 ? singularSuffix : pluralSuffix}`;
+	return `${word}${Number(quantity) === 1 ? singularSuffix : pluralSuffix}`;
 };
 
 export const getSyncStatusTitles = (syncStatus: SyncStatusEnum) => {

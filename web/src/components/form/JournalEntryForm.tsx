@@ -22,6 +22,7 @@ import EntryTagSelector from '../input/EntryTagSelector'
 import EntryNoteForm from './EntryNoteForm'
 import EntryTasksForm from './EntryTasksForm'
 import AccountAutocomplete from '../input/AccountAutocomplete'
+import RecurrenceSelect from '../input/RecurrenceSelect'
 
 export default function JournalEntryForm() {
 	const { setValue, control, register } = useFormContext<JournalEntry>()
@@ -52,20 +53,17 @@ export default function JournalEntryForm() {
 						</Stack> */}
 					</Grid>
 					<Grid size={7}>
-						<Grid container columns={12} spacing={2} rowSpacing={2} mb={1}>
-							<Grid size={12}>
-								<TextField
-									label="Memo"
-									variant='filled'
-									autoFocus
-									// ref={null}
-									{...register('memo')}
-									fullWidth
-									multiline
-									maxRows={3}
-								/>
-							</Grid>
-							<Grid size={12}>
+						<Stack spacing={2} mb={1}>
+							<TextField
+								label="Memo"
+								variant='filled'
+								autoFocus
+								{...register('memo')}
+								fullWidth
+								multiline
+								maxRows={3}
+							/>
+							<Stack direction='row' spacing={2}>
 								<Controller
 									control={control}
 									name="date"
@@ -81,7 +79,7 @@ export default function JournalEntryForm() {
 												label="Date"
 												slotProps={{
 													textField: {
-														fullWidth: true,
+														// fullWidth: true,
 														variant: 'filled'
 													},
 												}}
@@ -89,41 +87,47 @@ export default function JournalEntryForm() {
 										</LocalizationProvider>
 									)}
 								/>
-							</Grid>
-							<Grid size={8}>
-								<Controller
-									control={control}
-									name="amount"
-									render={({ field }) => (
-										<AmountField
-											variant='filled'
-											{...field}
-											fullWidth
-											sx={{ flex: 1 }}
-											autoComplete="off"
-										/>
-									)}
+								<RecurrenceSelect
+									variant='filled'
+									label='Recurrence'
 								/>
-							</Grid>
-							<Grid size={4}>
-								<Controller
-									control={control}
-									name="accountId"
-									render={({ field }) => {
-										return (
-											<AccountAutocomplete
+							</Stack>
+							<Grid container columns={12} columnSpacing={2}>
+								<Grid size={8}>
+									<Controller
+										control={control}
+										name="amount"
+										render={({ field }) => (
+											<AmountField
+												variant='filled'
 												{...field}
-												value={accountId}
-												onChange={(_event, newValue) => {
-													setValue(field.name, newValue ?? undefined, { shouldDirty: true })
-												}}
-												renderInput={(params) => <TextField {...params} label={'Account'} variant='filled' />}
+												fullWidth
+												sx={{ flex: 1 }}
+												autoComplete="off"
 											/>
-										)
-									}}
-								/>
+										)}
+									/>
+								</Grid>
+								<Grid size={4}>
+									<Controller
+										control={control}
+										name="accountId"
+										render={({ field }) => {
+											return (
+												<AccountAutocomplete
+													{...field}
+													value={accountId}
+													onChange={(_event, newValue) => {
+														setValue(field.name, newValue ?? undefined, { shouldDirty: true })
+													}}
+													renderInput={(params) => <TextField {...params} label={'Account'} variant='filled' />}
+												/>
+											)
+										}}
+									/>
+								</Grid>
 							</Grid>
-						</Grid>					
+						</Stack>					
 						<ChildJournalEntryForm />
 						<EntryArtifactsForm />
 					</Grid>
