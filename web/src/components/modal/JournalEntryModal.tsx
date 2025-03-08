@@ -37,7 +37,7 @@ export default function JournalEntryModal(props: EditJournalEntryModalProps) {
 		const formData: JournalEntry = journalEntryForm.getValues()
 		return updateJournalEntry(formData)
 			.then(() => {
-				console.log('Put journal entry.')
+				console.log('Put journal entry.', formData)
 				disableUnsavedChangesWarning(JOURNAL_ENTRY_UNSAVED_CHANGES_WARNING_KEY)
 			})
 			.catch((error: any) => {

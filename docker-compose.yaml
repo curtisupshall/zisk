@@ -1,20 +1,18 @@
 version: '3.8'
 
 services:
-  zisk-server:
+  web:
     build:
-      context: ./server
+      context: ./web
       dockerfile: Dockerfile
-      args:
-        - AUTH_SECRET=${AUTH_SECRET}
-        - AUTH_HMAC_KID=${AUTH_HMAC_KID}
     ports:
-      - "${COUCHDB_PORT}:5984"
-    environment:
-      - COUCHDB_USER=${COUCHDB_USER}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+      - "9475:9475"
     volumes:
-      - couchdb_data:/opt/couchdb/data
-
-volumes:
-  couchdb_data:
+      # Mount the source code for hot reloading
+      - ./web:/app
+      # Exclude node_modules from the mount
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      # Add any other environment variables your app needs
+    command: npm run dev

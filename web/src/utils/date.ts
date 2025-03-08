@@ -34,3 +34,25 @@ export const getAllDatesInMonth = (inputDate: string) => {
 
     return dates;
 }
+
+/**
+ * Takes a date and gives the number of the week for the given month.
+ * 
+ * @param date The given date
+ * @returns The week number of the month, namely 1-5, where 5 is always
+ * interpreted as the "last week" of the month.
+ * @example getWeekOfMonth('2024-01-1') // Output: 1
+ * @example getWeekOfMonth('2024-01-8') // Output: 2
+ * @example getWeekOfMonth('2024-01-15') // Output: 3
+ * @example getWeekOfMonth('2024-01-22') // Output: 4
+ * @example getWeekOfMonth('2024-01-29') // Output: 5 (the last week)
+ */
+export const getWeekOfMonth = (date: string) => {
+    let day = dayjs(date)
+    let weekNumber = 0
+    for (let pivot = dayjs(date); pivot.month() === day.month(); pivot = pivot.subtract(7, 'days')) {
+        weekNumber ++;
+    }
+
+    return weekNumber;
+}
