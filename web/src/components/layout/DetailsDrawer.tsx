@@ -11,6 +11,7 @@ interface DetailsDrawerProps extends PropsWithChildren {
 export default function DetailsDrawer(props: DetailsDrawerProps) {
     return (
         <Drawer
+            disableEnforceFocus
             anchor="right"
             open={props.open}
             onClose={props.onClose}
