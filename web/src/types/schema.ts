@@ -183,22 +183,42 @@ export const EntryRecurrence = DocumentMetadata.merge(BelongsToJournal).merge(
 
 export type EntryRecurrence = z.output<typeof EntryRecurrence>;
 
-export const BaseJournalEntry = DocumentMetadata.merge(BelongsToJournal).merge(AmountRecord).merge(
+export const TRANSFER_ENTRY = z.literal('TRANSFER_ENTRY')
+
+export const JOURNAL_ENTRY = z.literal('JOURNAL_ENTRY')
+
+export const CommonEntryAttributes = DocumentMetadata.merge(BelongsToJournal).merge(AmountRecord).merge(
 	z.object({
-		type: z.literal('JOURNAL_ENTRY'),
+		type: z.union([TRANSFER_ENTRY, JOURNAL_ENTRY]),
 		memo: z.string(),
 		tagIds: z.array(z.string()).optional(),
 		categoryIds: z.array(z.string()).optional(),
-		accountId: z.string().optional(),
+		sourceAccountId: z.string().optional(),
 		date: z.string().optional(),
 		notes: z.string().optional(),
 		tasks: z.array(EntryTask).optional(),
 		artifacts: z.array(EntryArtifact).optional(),
 		recurs: EntryRecurrence.optional(),
-		paymentMethodId: z.string().nullable().optional(),
 		relatedEntryIds: z.array(z.string()).optional(),
 		createdAt: z.string(),
 		updatedAt: z.string().nullable().optional(),
+	})
+)
+
+export type CommonEntryAttributes = z.output<typeof CommonEntryAttributes>
+
+export const TransferEntry = CommonEntryAttributes.merge(
+	z.object({
+		type: TRANSFER_ENTRY,
+		destAccountId: z.string().optional(),
+	})
+)
+
+export type TransferEntry = z.output<typeof TransferEntry>
+
+export const BaseJournalEntry = CommonEntryAttributes.merge(
+	z.object({
+		type: z.literal('JOURNAL_ENTRY'),
 	})
 )
 
@@ -210,14 +230,18 @@ export const JournalEntry = BaseJournalEntry.merge(
 	})
 )
 
+export type JournalEntry = z.output<typeof JournalEntry>
+
+export const JournalOrTransferEntry = z.union([JournalEntry, TransferEntry])
+
+export type JournalOrTransferEntry = z.output<typeof JournalOrTransferEntry>
+
 export const ChildJournalEntry = BaseJournalEntry.merge(z.object({
 	parentEntry: JournalEntry,
 	type: z.literal('CHILD_JOURNAL_ENTRY'),
 }))
 
 export type ChildJournalEntry = z.output<typeof ChildJournalEntry>
-
-export type JournalEntry = z.output<typeof JournalEntry>
 
 export const CreateQuickJournalEntry = AmountRecord.merge(z.object({
 	memo: z.string().optional(),

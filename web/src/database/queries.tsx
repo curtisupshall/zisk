@@ -73,9 +73,6 @@ export const getJournalEntries = async (
 		limit: ARBITRARY_MAX_FIND_LIMIT,
 	})
 
-
-	console.log('raw result:', result)
-
 	return Object.fromEntries((result.docs as JournalEntry[]).map((entry) => [entry._id, entry]))
 }
 

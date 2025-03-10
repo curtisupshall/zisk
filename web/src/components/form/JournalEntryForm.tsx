@@ -2,16 +2,20 @@
 
 import {
 	Box,
+	Collapse,
 	Divider,
 	Grid2 as Grid,
 	Stack,
 	TextField,
+	ToggleButton,
+	ToggleButtonGroup,
+	Tooltip,
 } from '@mui/material'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
-import { JournalEntry, RecurringCadence } from '@/types/schema'
+import { JOURNAL_ENTRY, JournalOrTransferEntry, RecurringCadence, TRANSFER_ENTRY } from '@/types/schema'
 import AmountField from '../input/AmountField'
 import CategorySelector from '../input/CategorySelector'
 import ChildJournalEntryForm from './ChildJournalEntryForm'
@@ -22,17 +26,30 @@ import EntryTagSelector from '../input/EntryTagSelector'
 import EntryNoteForm from './EntryNoteForm'
 import EntryTasksForm from './EntryTasksForm'
 import AccountAutocomplete from '../input/AccountAutocomplete'
+import { Book, InfoOutlined, TransferWithinAStation } from '@mui/icons-material'
 import RecurrenceSelect from '../input/RecurrenceSelect'
 
 export default function JournalEntryForm() {
-	const { setValue, control, register } = useFormContext<JournalEntry>()
+	const { setValue, control, register } = useFormContext<JournalOrTransferEntry>()
 
 	const date: string = useWatch({ control, name: 'date' }) ?? dayjs().format('YYYY-MM-DD')
 	const categoryIds = useWatch({ control, name: 'categoryIds' })
-	const accountId = useWatch({ control, name: 'accountId' })
+	const sourceAccountId = useWatch({ control, name: 'sourceAccountId' })
 	const entryTagIds = useWatch({ control, name: 'tagIds' })
 	const attachments = useWatch({ control, name: '_attachments' }) ?? {}
 	const journalEntryId = useWatch({ control, name: '_id' })
+	const entryType = useWatch({ control, name: 'type' })
+	const childEntries = useWatch({ control, name: 'children' })
+
+	const handleChangeEntryType = (newType: JournalOrTransferEntry['type']) => {
+		if (newType === TRANSFER_ENTRY.value && childEntries && childEntries.length > 0) {
+			const confirmedRemoveChildren = confirm('Making this entry a Transfer will remove any child entries. Are you sure?')
+			if (!confirmedRemoveChildren) {
+				return
+			}
+		}
+		setValue('type', newType)
+	}
 
 	useEffect(() => {
 		getJournalEntryWithAttachments(journalEntryId)
@@ -45,6 +62,22 @@ export default function JournalEntryForm() {
 	return (
 		<>
 			<Box sx={{ position: 'relative' /* Used for attachment drag overlay */ }}>
+				<ToggleButtonGroup exclusive value={entryType} size='small' onChange={(_event, value) => handleChangeEntryType(value)}>
+					<ToggleButton value={JOURNAL_ENTRY.value}>
+						<Stack direction='row' gap={0.5} alignItems='center'>
+							<Book sx={{ mr: 0 }} />
+							<span>Ledger</span>
+							<Tooltip title="Journal entry"><InfoOutlined fontSize='small' /></Tooltip>
+						</Stack>
+					</ToggleButton>
+					<ToggleButton value={TRANSFER_ENTRY.value}>
+						<Stack direction='row' gap={0.5} alignItems='center'>
+							<TransferWithinAStation sx={{ mr: 0 }} />
+							<span>Transfer</span>
+							<Tooltip title="Transfer between accounts"><InfoOutlined fontSize='small' /></Tooltip>
+						</Stack>
+					</ToggleButton>
+				</ToggleButtonGroup>
 				<Grid container columns={12} spacing={4} rowSpacing={2} mb={1} sx={{ px: 0 }}>
 					<Grid size={12}>
 						{/* <Stack direction='row' sx={{ pt: 0, pb: 2 }}>
@@ -80,7 +113,6 @@ export default function JournalEntryForm() {
 												label="Date"
 												slotProps={{
 													textField: {
-														// fullWidth: true,
 														variant: 'filled'
 													},
 												}}
@@ -95,7 +127,6 @@ export default function JournalEntryForm() {
 									render={({ field }) => (
 										<RecurrenceSelect
 											date={date}
-											// {...field}
 											value={field.value?.cadence as RecurringCadence | undefined}
 											onChange={(value: RecurringCadence | undefined) => {
 												setValue(`recurs.cadence`, value ?? undefined, { shouldDirty: true })
@@ -124,12 +155,12 @@ export default function JournalEntryForm() {
 								<Grid size={4}>
 									<Controller
 										control={control}
-										name="accountId"
+										name="sourceAccountId"
 										render={({ field }) => {
 											return (
 												<AccountAutocomplete
 													{...field}
-													value={accountId}
+													value={sourceAccountId}
 													onChange={(_event, newValue) => {
 														setValue(field.name, newValue ?? undefined, { shouldDirty: true })
 													}}
@@ -140,8 +171,10 @@ export default function JournalEntryForm() {
 									/>
 								</Grid>
 							</Grid>
-						</Stack>					
-						<ChildJournalEntryForm />
+						</Stack>
+						<Collapse in={entryType === 'JOURNAL_ENTRY'}>
+							<ChildJournalEntryForm />
+						</Collapse>
 						<EntryArtifactsForm />
 					</Grid>
 					<Grid size={5}>
@@ -183,9 +216,6 @@ export default function JournalEntryForm() {
 							<EntryNoteForm />
 						</Stack>
 					</Grid>
-				{/* <AttachmentDropzone onFilesAdded={handleAddFiles}>
-					<AttachmentButton />
-				</AttachmentDropzone> */}
 				</Grid>
 			</Box>
 		</>

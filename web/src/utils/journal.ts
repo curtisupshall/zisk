@@ -24,9 +24,6 @@ export const simplifyJournalEntry = (entry: JournalEntry): JournalEntry => {
 	if (!entry.categoryIds?.length) {
 		delete entry.categoryIds
 	}
-	if (!entry.paymentMethodId) {
-		delete entry.paymentMethodId
-	}
 	if (!entry.notes) {
 		delete entry.notes
 	}
