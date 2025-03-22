@@ -362,6 +362,19 @@ export const JournalSlice = z.object({
 
 export type JournalSlice = z.output<typeof JournalSlice>
 
+export const BasicAnalytics = z.object({
+	/**
+	 * Absolute sum of all accrued gains
+	 */
+	sumGain: z.number(),
+	/**
+	 * Absolute sum of all incurred losses
+	 */
+	sumLoss: z.number(),
+})
+
+export type BasicAnalytics = z.output<typeof BasicAnalytics>
+
 export const CloudZiskServer = z.object({
 	serverType: z.literal('ZISK_CLOUD'),
 	user: z.object({

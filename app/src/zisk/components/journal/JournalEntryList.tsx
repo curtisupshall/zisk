@@ -318,6 +318,7 @@ export default function JournalEntryList(props: JournalEntryListProps) {
 															0.125
 														),
 													})}
+													size='small'
 													label="Uncategorized"
 												/>
 											)}

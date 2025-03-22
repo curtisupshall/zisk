@@ -21,8 +21,8 @@ import AvatarChip from "../icon/AvatarChip";
 import { JournalContext } from "@/contexts/JournalContext";
 import AvatarIcon from "../icon/AvatarIcon";
 import { createCategory } from "@/database/actions";
-import { DEFAULT_AVATAR } from "../pickers/AvatarPicker";
 import clsx from "clsx";
+import { generateRandomAvatar } from "@/utils/journal";
 
 type CategorySelectorProps = Omit<CategoryAutocompleteProps, 'renderInput'>
 
@@ -49,7 +49,7 @@ export default function CategorySelector(props: CategorySelectorProps) {
         await createCategory({
             label: searchValue,
             description: '',
-            avatar: DEFAULT_AVATAR,
+            avatar: generateRandomAvatar(),
         }, journalId)
         getCategoriesQuery.refetch()
     }

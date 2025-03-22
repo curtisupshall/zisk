@@ -137,6 +137,7 @@ export default function JournalEditor() {
 						onClickListItem={handleClickListItem}
 						onDoubleClickListItem={handleDoubleClickListItem}
 					/>
+					<Stack component='footer'></Stack>
 				</Box>
 			</Stack>
 		</>
