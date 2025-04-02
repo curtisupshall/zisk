@@ -134,24 +134,26 @@ export default function JournalEntryModal(props: EditJournalEntryModalProps) {
 		journalEntryForm.setValue(name, newTags, { shouldDirty: true })
 	}
 
-	useKeyboardAction(KeyboardActionName.TOGGLE_JOURNAL_ENTRY_APPROXIMATE_RESERVED_TAG, (event) => {
+	const handleReservedTagKeyboardAction = (event: KeyboardEvent, reservedTag: ReservedTagKey) => {
 		const target = event.target as HTMLElement
 		const journalEntryIdElement = target.closest("[data-journalEntryId]");
 		let journalEntryId: string | null = null
 		if (journalEntryIdElement) {
 			journalEntryId = journalEntryIdElement.getAttribute("data-journalEntryId");
 		}
-		toggleReservedTag(journalEntryId, RESERVED_TAGS.APPROXIMATE._id)
+		toggleReservedTag(journalEntryId, reservedTag)
+	}
+
+	useKeyboardAction(KeyboardActionName.TOGGLE_JOURNAL_ENTRY_APPROXIMATE_RESERVED_TAG, (event) => {
+		handleReservedTagKeyboardAction(event, RESERVED_TAGS.APPROXIMATE._id)
 	}, { ignoredByEditableTargets: false })
 
 	useKeyboardAction(KeyboardActionName.TOGGLE_JOURNAL_ENTRY_PENDING_RESERVED_TAG, (event) => {
-		const target = event.target as HTMLElement
-		const journalEntryIdElement = target.closest("[data-journalEntryId]");
-		let journalEntryId: string | null = null
-		if (journalEntryIdElement) {
-			journalEntryId = journalEntryIdElement.getAttribute("data-journalEntryId");
-		}
-		toggleReservedTag(journalEntryId, RESERVED_TAGS.PENDING._id)
+		handleReservedTagKeyboardAction(event, RESERVED_TAGS.PENDING._id)
+	}, { ignoredByEditableTargets: false })
+
+	useKeyboardAction(KeyboardActionName.TOGGLE_JOURNAL_ENTRY_FLAGGED_RESERVED_TAG, (event) => {
+		handleReservedTagKeyboardAction(event, RESERVED_TAGS.FLAGGED._id)
 	}, { ignoredByEditableTargets: false })
 
 	useEffect(() => {
