@@ -1,9 +1,14 @@
 import {
 	Avatar,
+	CadenceFrequency,
 	Category,
 	ChildJournalEntry,
+	DateView,
+	DayOfWeek,
 	EntryArtifact,
+	EntryRecurrency,
 	EntryTask,
+	RecurringCadence,
 	ReservedTagKey,
 	TransferEntry,
 	ZiskDocument,
@@ -13,6 +18,7 @@ import { generateJournalEntryId, generateTaskId } from './id'
 import dayjs from 'dayjs'
 import { RESERVED_TAGS } from '@/constants/tags'
 import { DEFAULT_AVATAR } from '@/components/pickers/AvatarPicker'
+import { getAbsoluteDateRangeFromDateView } from './date'
 
 /**
  * Strips optional fields from a JournalEntry object
@@ -191,17 +197,124 @@ export const generateRandomAvatar = (): Avatar => {
 	}
 }
 
-export const enumerateJournalEntryReservedTag = (entry: JournalEntry | TransferEntry):
-	{ parent: Set<ReservedTagKey>, children: Set<ReservedTagKey> } => {
-		const parentTagIds: string[] = entry.tagIds ?? []
-		let childTagIds: string[]
-		if (documentIsJournalEntryOrChildJournalEntry(entry)) {
-			childTagIds = entry.children?.flatMap((child) => child.tagIds ?? []) ?? []
-		} else {
-			childTagIds = []
-		}
-		return {
-			parent: new Set<ReservedTagKey>(parentTagIds.filter(tagIdBelongsToReservedTag)),
-			children: new Set<ReservedTagKey>(childTagIds.filter(tagIdBelongsToReservedTag)),
-		}
+export const enumerateJournalEntryReservedTag = (
+	entry: JournalEntry | TransferEntry
+): { parent: Set<ReservedTagKey>, children: Set<ReservedTagKey> } => {
+	const parentTagIds: string[] = entry.tagIds ?? []
+	let childTagIds: string[]
+	if (documentIsJournalEntryOrChildJournalEntry(entry)) {
+		childTagIds = entry.children?.flatMap((child) => child.tagIds ?? []) ?? []
+	} else {
+		childTagIds = []
 	}
+	return {
+		parent: new Set<ReservedTagKey>(parentTagIds.filter(tagIdBelongsToReservedTag)),
+		children: new Set<ReservedTagKey>(childTagIds.filter(tagIdBelongsToReservedTag)),
+	}
+}
+
+function* generateDatesFromRecurringCadence(startDate: dayjs.Dayjs, cadence: RecurringCadence) {
+	const { frequency, interval } = cadence
+	let date = startDate.clone()
+
+	function getWeekDates(day: dayjs.Dayjs): Record<DayOfWeek, dayjs.Dayjs> {
+		const weekday = day.day() // 0 (Sunday) to 6 (Saturday)
+		const startOfWeek = day.subtract(weekday, 'day') // Back up to Sunday
+	  
+		const result: Record<DayOfWeek, dayjs.Dayjs> = {} as Record<DayOfWeek, dayjs.Dayjs>
+	  
+		Object.values(DayOfWeek.Enum).forEach((label, index) => {
+			result[label] = startOfWeek.add(index, 'day');
+		})
+	  
+		return result;
+	  }
+
+	switch (frequency) {
+		case CadenceFrequency.Enum.D:
+			for(;;) {
+				date = date.add(interval, 'days')
+				yield date
+			}
+		case CadenceFrequency.Enum.Y:
+			for(;;) {
+				date = date.add(interval, 'years')
+				yield date
+			}
+		case CadenceFrequency.Enum.W:
+			for(;;) {
+				const weekDates = getWeekDates(date.add(interval, 'weeks'))
+				for (let day in cadence.days) {
+					date = weekDates[day as DayOfWeek]
+					yield date
+				}
+			}
+	}
+}
+
+export const getRecurrencesForDateView = (
+	recurringEntries: Record<string, JournalEntry | TransferEntry>, dateView: DateView
+): Record<string, Set<string>> => {
+	const { startDate: dateViewAbsoluteStart, endDate: dateViewAbsoluteEnd } = getAbsoluteDateRangeFromDateView(dateView)
+
+	// Filter all entry IDs which definitely don't occur in the given date view
+	const filteredEntryIds: string[] = []
+	Object.entries(recurringEntries).forEach(([entryId, entry]) => {
+		if (
+			dateViewAbsoluteStart
+			&& entry.recurs?.ends
+			&& 'onDate' in entry.recurs.ends
+			&& entry.recurs.ends.onDate
+			&& dayjs(entry.recurs.ends.onDate).isBefore(dateViewAbsoluteStart, 'day')
+		) {
+			// Entry recurrency ends before date view begins
+			return
+		} else if (!entry.recurs?.cadence) {
+			return
+		} else if (
+			entry.recurs.ends
+			&& 'afterNumOccurrences' in entry.recurs.ends
+			&& entry.recurs.ends.afterNumOccurrences === 1
+		) {
+			return
+		}
+
+		filteredEntryIds.push(entryId)
+	})
+
+	const recurrenceDates: Record<string, Set<string>> = Object.fromEntries(
+		filteredEntryIds.map((entryId) => {
+			return [entryId, new Set<string>([])]
+		})
+	)
+	filteredEntryIds.forEach((entryId) => {
+		const recurrency: EntryRecurrency = recurringEntries[entryId].recurs as EntryRecurrency
+		const startDate = dayjs(recurringEntries[entryId].date!)
+		const dateGenerator = generateDatesFromRecurringCadence(startDate, recurrency.cadence)
+		let date: dayjs.Dayjs | void
+		let numRemainingOccurrences: number = Infinity
+		let endDate: dayjs.Dayjs | undefined = undefined
+		if (recurrency.ends) {
+			if ('afterNumOccurrences' in recurrency.ends) {
+				numRemainingOccurrences = recurrency.ends.afterNumOccurrences
+			} else if ('onDate' in recurrency.ends) {
+				endDate = dayjs(recurrency.ends.onDate)
+			}
+		}
+
+		do {
+			date = dateGenerator.next().value
+			numRemainingOccurrences -= 1
+			if (date) {
+				if (date.isAfter(dateViewAbsoluteEnd, 'days')) {
+					return
+				} else if (date.isBefore(dateViewAbsoluteStart, 'days')) {
+					continue
+				} else {
+					recurrenceDates[entryId].add(date.format('YYYY-MM-DD'))
+				}
+			}
+		} while (numRemainingOccurrences > 0 && date && (!endDate || date.isBefore(endDate, 'days')));
+	})
+	return recurrenceDates
+}

@@ -28,6 +28,7 @@ db.createIndex({
 			'date',
 			'children',
 			'journalId',
+			'recurs',
 		],
 	},
 })

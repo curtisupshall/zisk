@@ -2,7 +2,7 @@ import { SelectAllAction } from '@/components/journal/ribbon/JournalEntrySelecti
 import { JournalFilterSlot } from '@/components/journal/ribbon/JournalFilterPicker'
 import { JournalContext } from '@/contexts/JournalContext'
 import { JournalEditorState, JournalSliceContext } from '@/contexts/JournalSliceContext'
-import { getJournalEntries, getTransferEntries } from '@/database/queries'
+import { getJournalEntries, getRecurringJournalOrTransferEntries, getTransferEntries } from '@/database/queries'
 import { AmountRange, Analytics, JournalEntry, JournalSlice, TransferEntry } from '@/types/schema'
 import { generateAnalytics } from '@/utils/analytics'
 import { enumerateFilters } from '@/utils/filtering'
@@ -117,9 +117,22 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 		enabled: Boolean(getJournalEntriesQuery.data),
 	});
 
+	const getRecurrentJournalEntriesQuery = useQuery<Record<string, JournalEntry | TransferEntry>>({
+		queryKey: ["recurrent-entries", journalContext.journal],
+		queryFn: async () => {
+			if (!journalContext.journal) {
+				return {}
+			}
+			return getRecurringJournalOrTransferEntries(journalContext.journal._id, 'JOURNAL_ENTRY')
+		},
+		initialData: {},
+		enabled: true,
+	});
+
 	const refetchAllDependantQueries = () => {
 		getJournalEntriesQuery.refetch()
 		getTransferEntriesQuery.refetch()
+		getRecurrentJournalEntriesQuery.refetch()
 	}
 
 	const toggleSelectedRow = (row: string) => {
@@ -201,6 +214,7 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 
 				getJournalEntriesQuery,
 				getTransferEntriesQuery,
+				getRecurrentJournalEntriesQuery,
 				refetchAllDependantQueries,
 
 				getActiveFilterSet,

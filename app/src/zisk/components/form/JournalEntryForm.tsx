@@ -13,7 +13,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
-import { JOURNAL_ENTRY, JournalOrTransferEntry, RecurringCadence, TRANSFER_ENTRY } from '@/types/schema'
+import { EntryRecurrency, JOURNAL_ENTRY, JournalOrTransferEntry, TRANSFER_ENTRY } from '@/types/schema'
 import AmountField from '../input/AmountField'
 import CategorySelector from '../input/CategorySelector'
 import ChildJournalEntryForm from './ChildJournalEntryForm'
@@ -128,9 +128,9 @@ export default function JournalEntryForm() {
 									render={({ field }) => (
 										<RecurrenceSelect
 											date={date}
-											value={field.value?.cadence as RecurringCadence | undefined}
-											onChange={(value: RecurringCadence | undefined) => {
-												setValue(`recurs.cadence`, value ?? undefined, { shouldDirty: true })
+											value={field.value as EntryRecurrency | undefined}
+											onChange={(value: EntryRecurrency | undefined) => {
+												setValue(`recurs`, value ?? undefined, { shouldDirty: true })
 											}}
 										/>
 									)}

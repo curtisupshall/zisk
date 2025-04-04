@@ -1,6 +1,16 @@
-import { dayOfWeekFromDate, deserializeRecurrenceCadence, generateDeafultRecurringCadences, getFrequencyLabel, getMonthlyCadenceLabel, getMonthlyRecurrencesFromDate, getRecurringCadenceString, serializeRecurrenceCadence, updateRecurrenceCadenceForNewDate } from "@/utils/recurrence"
-import { CadenceFrequency, DayOfWeek, MonthlyCadence, RecurringCadence } from "@/types/schema"
-import { ArrowDownward, ArrowUpward } from "@mui/icons-material"
+import {
+    dayOfWeekFromDate,
+    deserializeEntryRecurrency,
+    generateDeafultRecurringCadences,
+    getFrequencyLabel,
+    getMonthlyCadenceLabel,
+    getMonthlyRecurrencesFromDate,
+    getRecurrencyString,
+    serializeEntryRecurrency,
+    updateRecurrencyNewDate
+} from "@/utils/recurrence"
+import { CadenceFrequency, DayOfWeek, EntryRecurrency, MonthlyCadence, RecurringCadence } from "@/types/schema"
+import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material"
 import {
     Button,
     Dialog,
@@ -8,8 +18,11 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
+    FormControlLabel,
     IconButton,
     MenuItem,
+    Radio,
+    RadioGroup,
     Select,
     SelectChangeEvent,
     Stack,
@@ -19,7 +32,7 @@ import {
 import { ChangeEvent, useEffect, useState } from "react"
 import DaysOfWeekPicker from "../pickers/DaysOfWeekPicker"
 import dayjs from "dayjs"
-import { sentenceCase } from "@/utils/string"
+import { pluralize, sentenceCase } from "@/utils/string"
 
 enum RecurrenceDefaultOption {
     NON_RECURRING = 'NON_RECURRING',
@@ -34,13 +47,22 @@ const RECURRENCE_DEFAULT_OPTION_LABELS: Record<RecurrenceDefaultOption, string> 
 interface CustomRecurrenceModalProps {
     open: boolean
     date: string
-    initialValue: RecurringCadence | undefined
-    onSubmit: (cadence: RecurringCadence) => void
+    initialValue: EntryRecurrency | undefined
+    onSubmit: (recurrency: EntryRecurrency) => void
     onClose: () => void
+}
+
+enum RecurrencyEnd {
+    NEVER = 'NEVER',
+    ON_DATE = 'ON_DATE',
+    AFTER_OCCURRENCES = 'AFTER_OCCURRENCES'
 }
 
 function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
     const { onSubmit, ...rest } = props
+    const [totalOccurrenceCount, setTotalOccurrenceCount] = useState<string | number>(1) // TODO revisit default value here
+    const [recurrencyEnds, setRecurrencyEnds] = useState<RecurrencyEnd>(RecurrencyEnd.NEVER)
+    const [recurrencyEndDate, setRecurrencyEndDate] = useState<string>('') // TODO determine how to set the initial value
     const [interval, setInterval] = useState<string | number>(1)
     const [frequency, setFrequency] = useState<CadenceFrequency>('M')
     const [selectedWeekDays, setSelectedWeekDays] = useState<Set<DayOfWeek>>(new Set<DayOfWeek>())
@@ -67,38 +89,76 @@ function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
         }
     }
 
+    const handleChangeTotalOccurrenceCount = (event: ChangeEvent<HTMLInputElement>) => {
+        setTotalOccurrenceCount(event.target.value)
+    }
+
+    const incrementTotalOccurrenceCount = () => {
+        setTotalOccurrenceCount((prev) => (Number(prev || 0) + 1))
+    }
+
+    const decrementTotalOccurrenceCount = () => {
+        if (Number(totalOccurrenceCount) > 1) {
+            setTotalOccurrenceCount((prev) => Number(prev) - 1)
+        } else {
+            setTotalOccurrenceCount(1)
+        }
+    }
+
     const handleSubmit = () => {
-        let response: RecurringCadence
+        let cadence: RecurringCadence
+        let ends: EntryRecurrency['ends']
         switch (frequency) {
-            case 'Y':
-                response = {
-                    frequency: 'Y',
+            case CadenceFrequency.Enum.Y:
+                cadence = {
+                    frequency: CadenceFrequency.Enum.Y,
                     interval: Number(interval),
                 }
                 break
-            case 'D':
-                response = {
-                    frequency: 'D',
+            case CadenceFrequency.Enum.D:
+                cadence = {
+                    frequency: CadenceFrequency.Enum.D,
                     interval: Number(interval),
                 }
                 break
-            case 'W': {
-                response = {
-                    frequency: 'W',
+            case CadenceFrequency.Enum.W: {
+                cadence = {
+                    frequency: CadenceFrequency.Enum.W,
                     interval: Number(interval),
                     days: Array.from(selectedWeekDays),
                 }
                 break
             }
-            case 'M':
+            case CadenceFrequency.Enum.M:
             default:
-                response = {
+                cadence = {
                     ...monthlyCadenceOptions[selectedMonthlyCadenceOption],
                     interval: Number(interval),
                 }
                 break
         }
-        onSubmit(response)
+
+        switch (recurrencyEnds) {
+            case RecurrencyEnd.AFTER_OCCURRENCES:
+                ends = {
+                    afterNumOccurrences: Number(totalOccurrenceCount ?? 1) || 1
+                }
+                break
+            case RecurrencyEnd.ON_DATE:
+                ends = {
+                    onDate: recurrencyEndDate
+                }
+                break
+            case RecurrencyEnd.NEVER:
+            default:
+                ends = null
+                break
+        }
+        onSubmit({
+            cadence,
+            ends,
+            exceptions: undefined,
+        })
     }
 
     useEffect(() => {
@@ -111,10 +171,21 @@ function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
         if (!props.open || !props.initialValue) {
             return
         }
-        setInterval(props.initialValue.interval)
-        setFrequency(props.initialValue.frequency)
-        if (props.initialValue.frequency === 'W') {
-            setSelectedWeekDays(new Set<DayOfWeek>(props.initialValue.days))
+        setInterval(props.initialValue.cadence.interval)
+        setFrequency(props.initialValue.cadence.frequency)
+        if (props.initialValue.cadence.frequency ===CadenceFrequency.Enum.W) {
+            setSelectedWeekDays(new Set<DayOfWeek>(props.initialValue.cadence.days))
+        }
+        if (props.initialValue.ends) {
+            if ('onDate' in props.initialValue.ends) {
+                setRecurrencyEnds(RecurrencyEnd.ON_DATE)
+                setRecurrencyEndDate(props.initialValue.ends.onDate)
+            } else if ('afterNumOccurrences' in props.initialValue.ends) {
+                setRecurrencyEnds(RecurrencyEnd.AFTER_OCCURRENCES)
+                setTotalOccurrenceCount(props.initialValue.ends.afterNumOccurrences)
+            }
+        } else {
+            setRecurrencyEnds(RecurrencyEnd.NEVER)
         }
     }, [props.initialValue, props.open])
 
@@ -122,9 +193,9 @@ function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
         <Dialog {...rest} maxWidth='xs' fullWidth>
             <DialogTitle>Custom recurrence</DialogTitle>
             <DialogContent>
-                <Stack spacing={1}>
+                <Stack spacing={2}>
                     <Stack direction='row' spacing={0.5} alignItems={'center'}>
-                        <Typography sx={{ pr: 1 }}>Repeats every</Typography>
+                        <Typography variant='body2' sx={{ pr: 1 }}>Repeats every</Typography>
                         <TextField
                             hiddenLabel
                             value={interval}
@@ -151,12 +222,26 @@ function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
                                 }
                             }}
                         />
-                        <Stack spacing={0}>
-                            <IconButton size="small" onClick={() => incrementInterval()}>
-                                <ArrowUpward />
+                        <Stack spacing={0} my={-1}>
+                            <IconButton
+                                size="small"
+                                onClick={() => incrementInterval()}
+                                sx={(theme) => ({
+                                    width: theme.spacing(3),
+                                    height: theme.spacing(3)
+                                })}
+                            >
+                                <ArrowDropUp />
                             </IconButton>
-                            <IconButton size="small" onClick={() => decrementInterval()}>
-                                <ArrowDownward />
+                            <IconButton
+                                size="small"
+                                onClick={() => decrementInterval()}
+                                sx={(theme) => ({
+                                    width: theme.spacing(3),
+                                    height: theme.spacing(3)
+                                })}
+                            >
+                                <ArrowDropDown />
                             </IconButton>
                         </Stack>
                         <Select
@@ -175,7 +260,7 @@ function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
                             })}
                         </Select>
                     </Stack>
-                    {frequency === 'M' && (
+                    {frequency === CadenceFrequency.Enum.M && (
                         <Select
                             hiddenLabel
                             fullWidth
@@ -198,12 +283,138 @@ function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
                             })}
                         </Select>
                     )}
-                    {frequency === 'W' && (
-                        <DaysOfWeekPicker
-                            value={selectedWeekDays}
-                            onChange={setSelectedWeekDays}
-                        />
+                    {frequency === CadenceFrequency.Enum.W && (
+                        <Stack gap={1}>
+                            <Typography variant='body2'>Repeats on</Typography>
+                            <DaysOfWeekPicker
+                                value={selectedWeekDays}
+                                onChange={setSelectedWeekDays}
+                            />
+                        </Stack>
                     )}
+                    <Stack gap={0}>
+                        <Typography variant='body2'>Ends</Typography>
+                        <FormControl>
+                            <RadioGroup
+                                value={recurrencyEnds}
+                                onChange={((_event, newValue: string) => {
+                                    setRecurrencyEnds(newValue as RecurrencyEnd)
+                                })}
+                                sx={{ gap: 0.5 }}
+                            >
+                                <FormControlLabel
+                                    value={RecurrencyEnd.NEVER}
+                                    control={<Radio />}
+                                    label={<Typography variant='body2'>Never</Typography>}
+                                />
+                                <FormControlLabel
+                                    value={RecurrencyEnd.ON_DATE}
+                                    control={<Radio />}
+                                    label={
+                                        <Stack direction='row' spacing={1} alignItems={'center'}>
+                                            <Typography variant='body2' sx={{ minWidth: '5ch' }}>On</Typography>
+                                                <Stack
+                                                    direction='row'
+                                                    spacing={0.5}
+                                                    alignItems={'center'}
+                                                    sx={{
+                                                        my: -1,
+                                                        opacity: recurrencyEnds === RecurrencyEnd.ON_DATE
+                                                            ? undefined
+                                                            : 0.5,
+                                                    }}
+                                                    my={-1}
+                                                >
+                                                    <TextField
+                                                        size='small'
+                                                        hiddenLabel
+                                                        value={recurrencyEndDate}
+                                                        onChange={(event) => setRecurrencyEndDate(event.target.value)}
+                                                        placeholder='Date'
+                                                        variant='filled'
+                                                        disabled={recurrencyEnds !== RecurrencyEnd.ON_DATE}
+                                                    />
+                                            </Stack>
+                                        </Stack>
+                                    }
+                                />
+                                <FormControlLabel
+                                    value={RecurrencyEnd.AFTER_OCCURRENCES}
+                                    control={<Radio />}
+                                    label={
+                                        <Stack direction='row' spacing={1} alignItems={'center'}>
+                                            <Typography variant='body2' sx={{ minWidth: '5ch' }}>After</Typography>
+                                            <Stack
+                                                direction='row'
+                                                spacing={0.5}
+                                                alignItems={'center'}
+                                                sx={{
+                                                    my: -1,
+                                                    opacity: recurrencyEnds === RecurrencyEnd.AFTER_OCCURRENCES
+                                                        ? undefined
+                                                        : 0.5,
+                                                }}
+                                                my={-1}
+                                            >
+                                                <TextField
+                                                    disabled={recurrencyEnds !== RecurrencyEnd.AFTER_OCCURRENCES}
+                                                    hiddenLabel
+                                                    value={totalOccurrenceCount}
+                                                    onChange={handleChangeTotalOccurrenceCount}
+                                                    size='small'
+                                                    autoComplete="new-password"
+                                                    type='number'
+                                                    variant='filled'
+                                                    onBlur={() => {
+                                                        if (!interval || Number(interval) <= 0) {
+                                                            setTotalOccurrenceCount(1)
+                                                        }
+                                                    }}
+                                                    slotProps={{
+                                                        htmlInput: {
+                                                            sx: {
+                                                                width: '3ch',
+                                                                textAlign: 'center',
+                                                                '&::-webkit-inner-spin-button,::-webkit-outer-spin-button': {
+                                                                    '-webkit-appearance': 'none',
+                                                                    margin: 0,
+                                                                }
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+                                                <Stack spacing={0} my={-1}>
+                                                    <IconButton
+                                                        disabled={recurrencyEnds !== RecurrencyEnd.AFTER_OCCURRENCES}
+                                                        size="small"
+                                                        onClick={() => incrementTotalOccurrenceCount()}
+                                                        sx={(theme) => ({
+                                                            width: theme.spacing(3),
+                                                            height: theme.spacing(3),
+                                                        })}
+                                                    >
+                                                        <ArrowDropUp />
+                                                    </IconButton>
+                                                    <IconButton
+                                                        disabled={recurrencyEnds !== RecurrencyEnd.AFTER_OCCURRENCES}
+                                                        size="small"
+                                                        onClick={() => decrementTotalOccurrenceCount()}
+                                                        sx={(theme) => ({
+                                                            width: theme.spacing(3),
+                                                            height: theme.spacing(3),
+                                                        })}
+                                                    >
+                                                        <ArrowDropDown />
+                                                    </IconButton>
+                                                </Stack>
+                                                <Typography variant='body2'>{pluralize(Number(totalOccurrenceCount) || 0, 'occurrence')}</Typography>
+                                            </Stack>
+                                        </Stack>
+                                    }
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                    </Stack>
                 </Stack>
             </DialogContent>
             <DialogActions>
@@ -216,21 +427,24 @@ function CustomRecurrenceModal(props: CustomRecurrenceModalProps) {
 
 interface RecurrenceSelectProps {
     date: string
-    value: RecurringCadence | undefined
-    onChange: (cadence: RecurringCadence | undefined) => void
+    value: EntryRecurrency | undefined
+    onChange: (recurrency: EntryRecurrency | undefined) => void
 }
 
-const getSelectOptions = (date: string, additional: (RecurringCadence | undefined)[]) => {
+const getRecurrencySelectOptions = (date: string, additional: (EntryRecurrency | undefined)[]) => {
     const today = dayjs().format('YYYY-MM-DD')
     const options: string[] = [
         RecurrenceDefaultOption.NON_RECURRING,
     ]
     generateDeafultRecurringCadences(date ?? today).forEach((cadence) => {
-        options.push(serializeRecurrenceCadence(cadence));
+        options.push(serializeEntryRecurrency({
+            cadence,
+            ends: null,
+        }));
     })
-    additional.forEach((cadence) => {
-        if (cadence) {
-            const serialized = serializeRecurrenceCadence(cadence)
+    additional.forEach((recurrency) => {
+        if (recurrency) {
+            const serialized = serializeEntryRecurrency(recurrency)
             if (!options.includes(serialized)) {
                 options.push(serialized)
             }
@@ -243,26 +457,30 @@ const getSelectOptions = (date: string, additional: (RecurringCadence | undefine
 }
 
 export default function RecurrenceSelect(props: RecurrenceSelectProps) {
-    const [showCustomRecurrenceDialog, setShowCustomRecurrenceDialog] = useState<boolean>(false)
-    const [customCadence, setCustomCadence] = useState<RecurringCadence | undefined>(undefined)
+    const [showCustomRecurrencyDialog, setShowCustomRecurrencyDialog] = useState<boolean>(false)
+    const [customRecurrency, setCustomRecurrency] = useState<EntryRecurrency | undefined>(undefined)
 
     const handleChange = (event: SelectChangeEvent<string>) => {
         event.preventDefault()
         const { value } = event.target
         if (value === RecurrenceDefaultOption.CUSTOM) {
-            setShowCustomRecurrenceDialog(true)
+            setShowCustomRecurrencyDialog(true)
             return
         } else if (value === RecurrenceDefaultOption.NON_RECURRING) {
             props.onChange(undefined)
             return
         }
-        props.onChange(deserializeRecurrenceCadence(value))
+
+        const recurrency = deserializeEntryRecurrency(value)
+        props.onChange(recurrency)
     }
 
-    const handleSubmitCustomRecurrenceForm = (value: RecurringCadence) => {
-        setCustomCadence(value)
+    
+
+    const handleSubmitCustomRecurrenceForm = (value: EntryRecurrency) => {
+        setCustomRecurrency(value)
         props.onChange(value)
-        setShowCustomRecurrenceDialog(false)
+        setShowCustomRecurrencyDialog(false)
     }
 
     /**
@@ -270,21 +488,21 @@ export default function RecurrenceSelect(props: RecurrenceSelectProps) {
      * previous one.
      */
     useEffect(() => {
-        let newValue = updateRecurrenceCadenceForNewDate(props.value, props.date)
-        if (newValue) {
-            props.onChange(newValue)
+        const recurrency = updateRecurrencyNewDate(props.value, props.date)
+        if (recurrency) {
+            props.onChange(recurrency)
         }
     }, [props.date])
 
-    const selectOptions: string[] = getSelectOptions(props.date, [props.value, customCadence])
+    const selectOptions: string[] = getRecurrencySelectOptions(props.date, [props.value, customRecurrency])
 
     return ( 
         <>
             <CustomRecurrenceModal
-                open={showCustomRecurrenceDialog}
+                open={showCustomRecurrencyDialog}
                 date={props.date}
                 initialValue={props.value}
-                onClose={() => setShowCustomRecurrenceDialog(false)}
+                onClose={() => setShowCustomRecurrencyDialog(false)}
                 onSubmit={handleSubmitCustomRecurrenceForm}
             />
             <FormControl sx={{ m: 1, minWidth: 120 }}>
@@ -295,16 +513,16 @@ export default function RecurrenceSelect(props: RecurrenceSelectProps) {
                     displayEmpty
                     {...props}
                     onChange={handleChange}
-                    value={props.value ? serializeRecurrenceCadence(props.value) : RecurrenceDefaultOption.NON_RECURRING}
+                    value={props.value ? serializeEntryRecurrency(props.value) : RecurrenceDefaultOption.NON_RECURRING}
                 >
                     {selectOptions.map((option: string | RecurrenceDefaultOption) => {
                         let label: string = ''
                         if (option in RECURRENCE_DEFAULT_OPTION_LABELS) {
                             label = RECURRENCE_DEFAULT_OPTION_LABELS[option as RecurrenceDefaultOption]
                         } else {
-                            let cadence: RecurringCadence | undefined = deserializeRecurrenceCadence(option)
-                            if (cadence) {
-                                label = getRecurringCadenceString(cadence, props.date) ?? ''
+                            let recurrency: EntryRecurrency | undefined = deserializeEntryRecurrency(option)
+                            if (recurrency) {
+                                label = getRecurrencyString(recurrency, props.date) ?? ''
                             }
                         }
                         return (

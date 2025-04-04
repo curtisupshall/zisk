@@ -17,9 +17,9 @@ import {
 	Grow,
 	Checkbox,
 } from '@mui/material'
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 
-import { Account, Category, EntryTask, JournalEntry, ReservedTagKey, TransferEntry } from '@/types/schema'
+import { Account, Category, EntryTask, JOURNAL_ENTRY, JournalEntry, ReservedTagKey, TRANSFER_ENTRY, TransferEntry } from '@/types/schema'
 import dayjs from 'dayjs'
 import AvatarIcon from '@/components/icon/AvatarIcon'
 import { getPriceString } from '@/utils/string'
@@ -28,7 +28,7 @@ import QuickJournalEditor from './QuickJournalEditor'
 import { Flag, LocalOffer, Pending, Update } from '@mui/icons-material'
 import { JournalContext } from '@/contexts/JournalContext'
 import { PLACEHOLDER_UNNAMED_JOURNAL_ENTRY_MEMO } from '@/constants/journal'
-import { calculateNetAmount, journalEntryHasUserDefinedTags, journalEntryHasTasks, enumerateJournalEntryReservedTag } from '@/utils/journal'
+import { calculateNetAmount, journalEntryHasUserDefinedTags, journalEntryHasTasks, enumerateJournalEntryReservedTag, getRecurrencesForDateView } from '@/utils/journal'
 import { useGetPriceStyle } from '@/hooks/useGetPriceStyle'
 import { JournalSliceContext } from '@/contexts/JournalSliceContext'
 import clsx from 'clsx'
@@ -192,7 +192,7 @@ const JournalEntryDate = (props: JournalEntryDateProps) => {
 }
 
 interface JournalEntryListProps {
-	type: JournalEntry['type'] | TransferEntry['type']
+	type: JOURNAL_ENTRY | TRANSFER_ENTRY
 	journalRecordGroups: Record<string, JournalEntry[]> | Record<string, TransferEntry[]>
 	onClickListItem: (event: any, entry: JournalEntry | TransferEntry) => void
 	onDoubleClickListItem: (event: any, entry: JournalEntry | TransferEntry) => void
@@ -218,6 +218,15 @@ export default function JournalEntryList(props: JournalEntryListProps) {
 			displayedJournalDates.add(startOfMonth.format('YYYY-MM-DD'))
 		}
 	}
+
+	useEffect(() => {
+		const xs = getRecurrencesForDateView(journalSliceContext.getRecurrentJournalEntriesQuery.data, journalSliceContext.dateView)
+		console.log('recurrences:')
+		Object.entries(xs).forEach(([entryId, dates]) => {
+			console.log(entryId)
+			console.log(Array.from(dates))
+		})
+	}, [journalSliceContext.dateView])
 
 	return (
 		<Table size="small" sx={{ overflowY: 'scroll' }}>

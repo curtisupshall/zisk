@@ -11,6 +11,10 @@ export type JournalEditorState = { dateView: DateView } & {
 
 type JournalSliceContext = JournalEditorState & JournalSlice & {
 	// Queries
+	getRecurrentJournalEntriesQuery: DefinedUseQueryResult<
+		Record<JournalEntry['_id'], JournalEntry | TransferEntry>,
+		Error
+	>
 	getJournalEntriesQuery: DefinedUseQueryResult<
 		Record<JournalEntry['_id'], JournalEntry>,
 		Error
