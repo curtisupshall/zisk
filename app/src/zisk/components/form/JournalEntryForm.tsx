@@ -13,7 +13,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
-import { EntryRecurrency, JOURNAL_ENTRY, NonspecificEntry, TRANSFER_ENTRY } from '@/types/schema'
+import { EntryRecurrency, JOURNAL_ENTRY, JournalEntry, TRANSFER_ENTRY } from '@/types/schema'
 import AmountField from '../input/AmountField'
 import CategorySelector from '../input/CategorySelector'
 import ChildJournalEntryForm from './ChildJournalEntryForm'
@@ -29,7 +29,7 @@ import RecurrenceSelect from '../input/RecurrenceSelect'
 import { RESERVED_TAGS } from '@/constants/tags'
 
 export default function JournalEntryForm() {
-	const { setValue, control, register } = useFormContext<NonspecificEntry>()
+	const { setValue, control, register } = useFormContext<JournalEntry>()
 
 	const date: string = useWatch({ control, name: 'date' }) ?? dayjs().format('YYYY-MM-DD')
 	const parentEntryId = useWatch({ control, name: '_id' })
@@ -38,18 +38,18 @@ export default function JournalEntryForm() {
 	const entryTagIds = useWatch({ control, name: 'tagIds' })
 	const attachments = useWatch({ control, name: '_attachments' }) ?? {}
 	const journalEntryId = useWatch({ control, name: '_id' })
-	const entryType = useWatch({ control, name: 'type' })
+	const entryType = useWatch({ control, name: 'kind' })
 	const childEntries = useWatch({ control, name: 'children' })
 	const isApproximate = entryTagIds && entryTagIds.some((tagId) => tagId === RESERVED_TAGS.APPROXIMATE._id)
 
-	const handleChangeEntryType = (newType: NonspecificEntry['type']) => {
+	const handleChangeEntryType = (newType: JournalEntry['kind']) => {
 		if (newType === TRANSFER_ENTRY.value && childEntries && childEntries.length > 0) {
 			const confirmedRemoveChildren = confirm('Making this entry a Transfer will remove any child entries. Are you sure?')
 			if (!confirmedRemoveChildren) {
 				return
 			}
 		}
-		setValue('type', newType)
+		setValue('kind', newType)
 	}
 
 	useEffect(() => {

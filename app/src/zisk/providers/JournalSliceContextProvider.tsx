@@ -2,11 +2,11 @@ import { SelectAllAction } from '@/components/journal/ribbon/JournalEntrySelecti
 import { JournalFilterSlot } from '@/components/journal/ribbon/JournalFilterPicker'
 import { JournalContext } from '@/contexts/JournalContext'
 import { JournalEditorState, JournalSliceContext } from '@/contexts/JournalSliceContext'
-import { getJournalEntries, getRecurringJournalOrTransferEntries, getTransferEntries } from '@/database/queries'
-import { AmountRange, Analytics, JournalEntry, JournalSlice, TentativeJournalEntry, TentativeTransferEntry, TransferEntry } from '@/types/schema'
+import { getJournalEntries } from '@/database/queries'
+import { AmountRange, Analytics, JournalEntry, JournalSlice } from '@/types/schema'
 import { generateAnalytics } from '@/utils/analytics'
 import { enumerateFilters } from '@/utils/filtering'
-import { calculateNetAmount, getRecurrencesForDateView, makeTentativeJournalEntry, makeTentativeTransferEntry } from '@/utils/journal'
+import { calculateNetAmount } from '@/utils/journal'
 import { useQuery } from '@tanstack/react-query'
 import { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
@@ -89,18 +89,6 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 		enabled: hasSelectedJournal,
 	})
 
-	const getTransferEntriesQuery = useQuery<Record<TransferEntry['_id'], TransferEntry>>({
-		queryKey: ['transferEntries', journalSlice],
-		queryFn: async () => {
-			if (!journalContext.journal) {
-				return {}
-			}
-			return getTransferEntries(journalSlice, journalContext.journal._id)
-		},
-		initialData: {},
-		enabled: hasSelectedJournal,
-	})
-
 	const analyticsQuery = useQuery<Analytics>({
 		queryKey: ["analytics", getJournalEntriesQuery.data],
 		queryFn: () => generateAnalytics(Object.values(getJournalEntriesQuery.data ?? {}), dateView),
@@ -117,69 +105,38 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 		enabled: Boolean(getJournalEntriesQuery.data),
 	});
 
-	const getTentativeJournalEntryRecurrencesQuery = useQuery<Record<string, TentativeJournalEntry>>({
-		queryKey: ["journal-entry-recurrences", journalSlice],
-		queryFn: async () => {
-			if (!journalContext.journal) {
-				return {}
-			}
-			const recurringJournalEntries = await getRecurringJournalOrTransferEntries(journalContext.journal._id, 'JOURNAL_ENTRY')
-			const recurringEntryDates = getRecurrencesForDateView(recurringJournalEntries, journalSlice.dateView)
-			return Object.fromEntries(
-				Object.entries(recurringEntryDates).reduce((acc: [string, TentativeJournalEntry][], [recurringEntryId, dates]) => {
-					Array.from(dates).forEach((date: string) => {
-						const entry: TentativeJournalEntry = makeTentativeJournalEntry(
-							{},
-							journalContext.journal!._id ?? '',
-							date,
-							recurringEntryId
-						);
+	// const getTentativeJournalEntryRecurrencesQuery = useQuery<Record<string, TentativeJournalEntry>>({
+	// 	queryKey: ["journal-entry-recurrences", journalSlice],
+	// 	queryFn: async () => {
+	// 		if (!journalContext.journal) {
+	// 			return {}
+	// 		}
+	// 		const recurringJournalEntries = await getRecurringJournalOrTransferEntries(journalContext.journal._id, 'JOURNAL_ENTRY')
+	// 		const recurringEntryDates = getRecurrencesForDateView(recurringJournalEntries, journalSlice.dateView)
+	// 		return Object.fromEntries(
+	// 			Object.entries(recurringEntryDates).reduce((acc: [string, TentativeJournalEntry][], [recurringEntryId, dates]) => {
+	// 				Array.from(dates).forEach((date: string) => {
+	// 					const entry: TentativeJournalEntry = makeTentativeJournalEntry(
+	// 						{},
+	// 						journalContext.journal!._id ?? '',
+	// 						date,
+	// 						recurringEntryId
+	// 					);
 
-						acc.push([entry._id, entry])
-					})
+	// 					acc.push([entry._id, entry])
+	// 				})
 
-					return acc
-				}, [])
-			)
-		},
-		initialData: {},
-		enabled: true,
-	});
-
-	const getTentativeTransferEntryRecurrencesQuery = useQuery<Record<string, TentativeTransferEntry>>({
-		queryKey: ["transfer-entry-recurrences", journalSlice],
-		queryFn: async () => {
-			if (!journalContext.journal) {
-				return {}
-			}
-			const recurringTransferEntries = await getRecurringJournalOrTransferEntries(journalContext.journal._id, 'TRANSFER_ENTRY')
-			const recurringEntryDates = getRecurrencesForDateView(recurringTransferEntries, journalSlice.dateView)
-			return Object.fromEntries(
-				Object.entries(recurringEntryDates).reduce((acc: [string, TentativeTransferEntry][], [recurringEntryId, dates]) => {
-					Array.from(dates).forEach((date: string) => {
-						const entry: TentativeTransferEntry = makeTentativeTransferEntry(
-							{},
-							journalContext.journal!._id ?? '',
-							date,
-							recurringEntryId
-						);
-
-						acc.push([entry._id, entry])
-					})
-
-					return acc
-				}, [])
-			)
-		},
-		initialData: {},
-		enabled: true,
-	});
+	// 				return acc
+	// 			}, [])
+	// 		)
+	// 	},
+	// 	initialData: {},
+	// 	enabled: true,
+	// });
 
 	const refetchAllDependantQueries = () => {
 		getJournalEntriesQuery.refetch()
-		getTransferEntriesQuery.refetch()
-		getTentativeJournalEntryRecurrencesQuery.refetch()
-		getTentativeTransferEntryRecurrencesQuery.refetch()
+		// getTentativeJournalEntryRecurrencesQuery.refetch()
 	}
 
 	const toggleSelectedRow = (row: string) => {
@@ -260,9 +217,7 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 				onChangeAmountRange: setAmountRange,
 
 				getJournalEntriesQuery,
-				getTransferEntriesQuery,
-				getTentativeJournalEntryRecurrencesQuery,
-				getTentativeTransferEntryRecurrencesQuery,
+				// getTentativeJournalEntryRecurrencesQuery,
 				refetchAllDependantQueries,
 
 				getActiveFilterSet,

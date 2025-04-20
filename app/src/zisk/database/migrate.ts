@@ -11,7 +11,7 @@ export abstract class Migration {
 }
 
 export class MigrationEngine {
-    public static latestVersion: JournalVersion = JournalVersion.REPLACE_CATEGORY_IDS
+    public static latestVersion: JournalVersion = JournalVersion.REPLACE_CATEGORY_IDS;
 
     private static VERSION_STRATEGY: Omit<Record<JournalVersion, Migration>, typeof this.latestVersion> = {
         [JournalVersion.INITIAL_VERSION]: new AddParseAmountToEntries(),
@@ -20,7 +20,7 @@ export class MigrationEngine {
 
     private static initialMigration: MigrationRun = async (records) => {
         return records.reduce((acc: ZiskDocument[], record: ZiskDocument) => {
-            if (record.type === 'JOURNAL') {
+            if (record.kind === 'zisk:journal') {
                 if (!record.journalVersion || typeof record.journalVersion !== 'string') {
                     record.journalVersion = JournalVersion.INITIAL_VERSION
                 }

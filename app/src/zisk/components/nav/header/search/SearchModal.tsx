@@ -25,7 +25,7 @@ import { getAllJournalObjects } from "@/database/actions";
 import Fuse, { FuseResult } from "fuse.js";
 import { flattenJournalObjects } from "@/utils/search";
 import { Category, ChildJournalEntry, JournalEntry, ZiskDocument } from "@/types/schema";
-import { calculateNetAmount, documentIsCategory, documentIsChildJournalEntry, documentIsJournalEntryOrChildJournalEntry } from "@/utils/journal";
+import { calculateNetAmount, documentIsCategory, documentIsChildJournalEntry, documentIsJournalEntry } from "@/utils/journal";
 import { getPriceString } from "@/utils/string";
 import AvatarChip from "@/components/icon/AvatarChip";
 import AvatarIcon from "@/components/icon/AvatarIcon";
@@ -82,7 +82,7 @@ export default function SearchModal(props: SearchModalProps) {
         let onClickHandler: (() => void) | undefined = undefined
     
         // Journal Entry or Child Journal Entry
-        if (documentIsJournalEntryOrChildJournalEntry(result.item)) {
+        if (documentIsJournalEntry(result.item)) {
             const netAmount = calculateNetAmount(result.item as JournalEntry)
             const isNetPositive = netAmount > 0
             const { categoryId } = result.item

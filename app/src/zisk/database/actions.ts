@@ -9,8 +9,6 @@ import {
 	EntryTag,
 	JournalEntry,
 	JournalMeta,
-	NonspecificEntry,
-	TransferEntry,
 	ZiskDocument,
 	ZiskSettings,
 } from '@/types/schema'
@@ -31,7 +29,7 @@ export const createJournalEntry = async (formData: JournalEntry): Promise<Journa
 	const newJournalEntry: JournalEntry = {
 		...formData,
 		parsedNetAmount: calculateNetAmount(formData),
-		type: 'JOURNAL_ENTRY',
+		kind: 'JOURNAL_ENTRY',
 		createdAt: now,
 	}
 
@@ -39,21 +37,7 @@ export const createJournalEntry = async (formData: JournalEntry): Promise<Journa
 	return newJournalEntry
 }
 
-export const createTransferEntry = async (formData: TransferEntry): Promise<TransferEntry> => {
-	const now = new Date().toISOString()
-
-	const newJournalEntry: TransferEntry = {
-		...formData,
-		parsedNetAmount: calculateNetAmount(formData),
-		type: 'TRANSFER_ENTRY',
-		createdAt: now,
-	}
-
-	await db.put(newJournalEntry)
-	return newJournalEntry
-}
-
-export const updateJournalOrTransferEntry = async <T extends JournalEntry | TransferEntry>(formData: T) => {
+export const updateJournalEntry = async <T extends JournalEntry>(formData: T) => {
 	delete formData._rev
 
 	const existingRecord = await db.get(formData._id)
@@ -85,7 +69,7 @@ export const updateJournalEntryChildren = async (children: JournalEntry[]) => {
 	return db.bulkDocs(updatedChildren)
 }
 
-export const deleteNonspecificEntry = async <T extends NonspecificEntry>(entryId: string): Promise<T> => {
+export const deleteJournalEntry = async <T extends NonspecificEntry>(entryId: string): Promise<T> => {
 
 	// TODO check if it's a tentative entry; If so, add an exception in the recurring entry's exception field.
 
@@ -101,7 +85,7 @@ export const undeleteJournalEntry = async (journalEntry: JournalEntry) => {
 export const createCategory = async (formData: CreateCategory, journalId: string) => {
 	const category: Category = {
 		...formData,
-		type: 'CATEGORY',
+		kind: 'zisk:category',
 		_id: generateCategoryId(),
 		createdAt: new Date().toISOString(),
 		updatedAt: null,
@@ -114,7 +98,7 @@ export const createCategory = async (formData: CreateCategory, journalId: string
 export const createAccount = async (formData: CreateAccount, journalId: string) => {
 	const category: Account = {
 		...formData,
-		type: 'ACCOUNT',
+		kind: 'ACCOUNT',
 		_id: generateAccountId(),
 		createdAt: new Date().toISOString(),
 		updatedAt: null,
@@ -163,7 +147,7 @@ export const undeleteCategory = async (category: Category) => {
 export const createJournal = async (journal: CreateJournalMeta): Promise<JournalMeta> => {
 	const newJournal: JournalMeta = {
 		...journal,
-		type: 'JOURNAL',
+		kind: 'zisk:journal',
 		journalVersion: MigrationEngine.latestVersion,
 		_id: generateJournalId(),
 		createdAt: new Date().toISOString(),
@@ -209,7 +193,7 @@ export const createEntryTag = async (formData: CreateEntryTag, journalId: string
 	const tag: EntryTag = {
 		label:  formData.label,
 		description: formData.description,
-		type: 'ENTRY_TAG',
+		kind: 'ENTRY_TAG',
 		_id: generateEntryTagId(),
 		createdAt: new Date().toISOString(),
 		updatedAt: null,

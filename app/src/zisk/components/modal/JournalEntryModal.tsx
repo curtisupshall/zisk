@@ -7,7 +7,7 @@ import { Category, JournalEntry, NonspecificEntry, ReservedTagKey } from '@/type
 import { JournalContext } from '@/contexts/JournalContext'
 import DetailsDrawer from '../layout/DetailsDrawer'
 import AvatarIcon from '../icon/AvatarIcon'
-import { deleteNonspecificEntry, updateJournalOrTransferEntry } from '@/database/actions'
+import { deleteJournalEntry, updateJournalEntry } from '@/database/actions'
 import { PLACEHOLDER_UNNAMED_JOURNAL_ENTRY_MEMO } from '@/constants/journal'
 import { useDebounce } from '@/hooks/useDebounce'
 import useUnsavedChangesWarning from '@/hooks/useUnsavedChangesWarning'
@@ -36,7 +36,7 @@ export default function JournalEntryModal(props: EditJournalEntryModalProps) {
 			return Promise.resolve()
 		}
 		const formData: NonspecificEntry = journalEntryForm.getValues()
-		return updateJournalOrTransferEntry(formData)
+		return updateJournalEntry(formData)
 			.then(() => {
 				console.log('Put journal entry.', formData)
 				disableUnsavedChangesWarning(JOURNAL_ENTRY_UNSAVED_CHANGES_WARNING_KEY)
@@ -95,7 +95,7 @@ export default function JournalEntryModal(props: EditJournalEntryModalProps) {
 
 	const handleDelete = useCallback(async () => {
 		const formData: NonspecificEntry = journalEntryForm.getValues()
-		deleteNonspecificEntry(formData._id).then(() => {
+		deleteJournalEntry(formData._id).then(() => {
 			refreshJournalEntriesQuery()
 			refreshTransferEntriesQuery()
 			snackbar({ message: 'Deleted journal entry.' })

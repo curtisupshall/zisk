@@ -1,4 +1,4 @@
-import { Account, Category, EntryTag, JournalEntry, JournalMeta, TransferEntry } from '@/types/schema'
+import { Account, Category, EntryTag, JournalEntry, JournalMeta } from '@/types/schema'
 import { DefinedUseQueryResult } from '@tanstack/react-query'
 import { createContext } from 'react'
 import { UseFormReturn } from 'react-hook-form'
@@ -10,10 +10,10 @@ export interface JournalContext {
 	getEntryTagsQuery: DefinedUseQueryResult<Record<EntryTag['_id'], EntryTag>, Error>
 	showJournalEntryModal: boolean
 	journal: JournalMeta | null
-	journalEntryForm: UseFormReturn<JournalEntry | TransferEntry>
+	journalEntryForm: UseFormReturn<JournalEntry>
 	closeEntryModal: () => void
-	createJournalEntry: (value?: Partial<JournalEntry | TransferEntry>) => void
-	editJournalEntry: (entry: JournalEntry | TransferEntry) => void
+	createJournalEntry: (value?: Partial<JournalEntry>) => void
+	editJournalEntry: (entry: JournalEntry) => void
 	openJournalManager: () => void
 	closeActiveJournal: () => void
 }

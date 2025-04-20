@@ -5,26 +5,26 @@ import { PLACEHOLDER_UNNAMED_JOURNAL_NAME } from '@/constants/journal'
 import { JournalContext } from '@/contexts/JournalContext'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { ZiskContext } from '@/contexts/ZiskContext'
-import { updateActiveJournal, createJournalEntry, getAllJournalObjects, createTransferEntry } from '@/database/actions'
+import { updateActiveJournal, createJournalEntry, getAllJournalObjects } from '@/database/actions'
 import { getDatabaseClient } from '@/database/client'
 import { MigrationEngine } from '@/database/migrate'
 import { getAccounts, getCategories, getEntryTags, getJournals } from '@/database/queries'
-import { Account, Category, EntryTag, JournalEntry, JournalMeta, TransferEntry } from '@/types/schema'
+import { Account, Category, EntryTag, JournalEntry, JournalMeta } from '@/types/schema'
 import useKeyboardAction from '@/hooks/useKeyboardAction'
 import { KeyboardActionName } from '@/constants/keyboard'
-import { makeJournalEntry, makeTransferEntry } from '@/utils/journal'
+import { makeJournalEntry } from '@/utils/journal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 const db = getDatabaseClient()
 
 db.createIndex({
 	index: {
 		fields: [
-			'type',
+			'type', // Deprecated
+			'kind',
 			'date',
 			'children',
 			'journalId',
@@ -90,23 +90,19 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 		enabled: hasSelectedJournal,
 	})
 
-	const openCreateEntryModal = (values: Partial<JournalEntry | TransferEntry> = {}) => {
+	const openCreateEntryModal = (values: Partial<JournalEntry> = {}) => {
 		if (!activeJournal) {
 			return
 		}
-		let entry: JournalEntry | TransferEntry
-		if (values.type === 'TRANSFER_ENTRY') {
-			entry = makeTransferEntry(values as Partial<TransferEntry>, activeJournal._id)
-			createTransferEntry(entry)
-		} else {
-			entry = makeJournalEntry(values as Partial<JournalEntry>, activeJournal._id)
-			createJournalEntry(entry)
-		}
+		const entry: JournalEntry = makeJournalEntry(values as Partial<JournalEntry>, activeJournal._id)
+
+		createJournalEntry(entry)
+
 		journalEntryForm.reset(entry)
 		setShowJournalEntryModal(true)
 	}
 
-	const openEditEntryModal = (entry: JournalEntry | TransferEntry) => {
+	const openEditEntryModal = (entry: JournalEntry) => {
 		journalEntryForm.reset(entry)
 		setShowJournalEntryModal(true)
 	}
@@ -196,9 +192,9 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 		}
 	}, [ziskContext.data, getJournalsQuery.data, getJournalsQuery.isFetched])
 
-	const journalEntryForm = useForm<JournalEntry | TransferEntry>({
+	const journalEntryForm = useForm<JournalEntry>({
 		defaultValues: {},
-		resolver: zodResolver(z.union([JournalEntry, TransferEntry])),
+		resolver: zodResolver(JournalEntry),
 	})
 
 	return (

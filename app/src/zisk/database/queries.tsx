@@ -9,7 +9,6 @@ import {
 	JournalMeta,
 	JournalSlice,
 	TRANSFER_ENTRY,
-	TransferEntry,
 	ZiskMeta,
 } from '@/types/schema'
 import { getDatabaseClient } from './client'
@@ -26,7 +25,7 @@ export const getCategories = async (journalId: string): Promise<Record<Category[
 	const result = await db.find({
 		selector: {
 			'$and': [
-				{ type: 'CATEGORY' },
+				{ kind: 'zisk:category' },
 				{ journalId },
 			],
 		},
@@ -40,7 +39,7 @@ export const getAccounts = async (journalId: string): Promise<Record<Account['_i
 	const result = await db.find({
 		selector: {
 			'$and': [
-				{ type: 'ACCOUNT' },
+				{ kind: 'ACCOUNT' },
 				{ journalId },
 			],
 		},
@@ -54,23 +53,8 @@ export const getJournalEntries = async (
 	journalSlice: JournalSlice,
 	journalId: string,
 ): Promise<Record<string, JournalEntry>> => {
-	return getJournalOrTransferEntries(journalSlice, journalId, "JOURNAL_ENTRY") as Promise<Record<string, JournalEntry>>
-}
-
-export const getTransferEntries = async (
-	journalSlice: JournalSlice,
-	journalId: string,
-): Promise<Record<string, TransferEntry>> => {
-	return getJournalOrTransferEntries(journalSlice, journalId, "TRANSFER_ENTRY") as Promise<Record<string, TransferEntry>>
-}
-
-export const getJournalOrTransferEntries = async (
-	journalSlice: JournalSlice,
-	journalId: string,
-	type: JOURNAL_ENTRY | TRANSFER_ENTRY
-): Promise<Record<string, JournalEntry | TransferEntry>> => {
 	const selectorClauses: any[] = [
-		{ type },
+		{ kind: 'zisk:entry' },
 		{ journalId },
 	]
 	
@@ -116,17 +100,17 @@ export const getJournalOrTransferEntries = async (
 		limit: ARBITRARY_MAX_FIND_LIMIT,
 	})
 
-	const entries = Object.fromEntries((result.docs as (JournalEntry[] | TransferEntry[])).map((entry) => [entry._id, entry])) as Record<string, JournalEntry> | Record<string, TransferEntry>
+	const entries = Object.fromEntries((result.docs as JournalEntry[]).map((entry) => [entry._id, entry])) as Record<string, JournalEntry>
 
 	return entries
 }
 
 export const getRecurringJournalOrTransferEntries = async (
 	journalId: string,
-	type: JOURNAL_ENTRY | TRANSFER_ENTRY
-): Promise<Record<string, JournalEntry | TransferEntry>> => {
+	kind: JOURNAL_ENTRY | TRANSFER_ENTRY
+): Promise<Record<string, JournalEntry>> => {
 	const selectorClauses: any[] = [
-		{ type },
+		{ kind },
 		{ journalId },
 		{ recurs: {
 			$exists: true,
@@ -142,7 +126,7 @@ export const getRecurringJournalOrTransferEntries = async (
 		limit: ARBITRARY_MAX_FIND_LIMIT,
 	})
 
-	const entries = Object.fromEntries((result.docs as (JournalEntry[] | TransferEntry[])).map((entry) => [entry._id, entry])) as Record<string, JournalEntry> | Record<string, TransferEntry>
+	const entries = Object.fromEntries((result.docs as JournalEntry[]).map((entry) => [entry._id, entry])) as Record<string, JournalEntry>
 	return entries
 }
 
@@ -150,7 +134,7 @@ export const getEntryTags = async (journalId: string): Promise<Record<EntryTag['
 	const result = await db.find({
 		selector: {
 			'$and': [
-				{ type: 'ENTRY_TAG' },
+				{ kind: 'ENTRY_TAG' },
 				{ journalId },
 			],
 		},
@@ -164,7 +148,7 @@ export const getOrCreateZiskMeta = async (): Promise<ZiskMeta> => {
 	// Attempt to fetch the meta document by its key
 	const results = await db.find({
 		selector: {
-			type: 'ZISK_META',
+			kind: 'ZISK_META',
 		},
 	})
 	if (results.docs.length > 0) {
@@ -179,7 +163,7 @@ export const getOrCreateZiskMeta = async (): Promise<ZiskMeta> => {
 export const getJournals = async (): Promise<Record<JournalMeta['_id'], JournalMeta>> => {
 	const result = await db.find({
 		selector: {
-			type: 'JOURNAL',
+			kind: 'zisk:journal',
 		},
 		limit: ARBITRARY_MAX_FIND_LIMIT,
 	})
@@ -191,7 +175,7 @@ export const getArtifacts = async (journalId: string): Promise<Record<EntryArtif
 	const result = await db.find({
 		selector: {
 			'$and': [
-				{ type: 'ENTRY_ARTIFACT' },
+				{ kind: 'ENTRY_ARTIFACT' },
 				{ journalId },
 			],
 		},

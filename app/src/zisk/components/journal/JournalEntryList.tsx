@@ -19,7 +19,7 @@ import {
 } from '@mui/material'
 import { useContext, useMemo } from 'react'
 
-import { Account, Category, EntryTask, JOURNAL_ENTRY, JournalEntry, NonspecificEntry, ReservedTagKey, TRANSFER_ENTRY } from '@/types/schema'
+import { Account, Category, EntryTask, JournalEntry, ReservedTagKey } from '@/types/schema'
 import dayjs from 'dayjs'
 import AvatarIcon from '@/components/icon/AvatarIcon'
 import { getPriceString } from '@/utils/string'
@@ -192,18 +192,16 @@ const JournalEntryDate = (props: JournalEntryDateProps) => {
 }
 
 interface JournalEntryListProps {
-	type: JOURNAL_ENTRY | TRANSFER_ENTRY
 	/**
 	 * Entries grouped by date, where the key is the date and the value is the
 	 * array of entries occurring on this date.
 	 */
-	journalRecordGroups: Record<string, NonspecificEntry[]>
-	onClickListItem: (event: any, entry: NonspecificEntry) => void
-	onDoubleClickListItem: (event: any, entry: NonspecificEntry) => void
+	journalRecordGroups: Record<string, JournalEntry[]>
+	onClickListItem: (event: any, entry: JournalEntry) => void
+	onDoubleClickListItem: (event: any, entry: JournalEntry) => void
 }
 
 export default function JournalEntryList(props: JournalEntryListProps) {
-	const isTransferEntryList = props.type === 'TRANSFER_ENTRY' // isTransferEntryRecordGroup(props.journalRecordGroups)
 	const theme = useTheme()
 	const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
 	const { getCategoriesQuery, getAccountsQuery, createJournalEntry } = useContext(JournalContext)
@@ -247,21 +245,25 @@ export default function JournalEntryList(props: JournalEntryListProps) {
 										onClick={() => {
 											createJournalEntry({
 												date: day.format('YYYY-MM-DD'),
-												type: isTransferEntryList ? 'TRANSFER_ENTRY' : 'JOURNAL_ENTRY'
+												kind: 'JOURNAL_ENTRY'
 											})
 										}}
 									/>
 								</TableCell>
 							</TableRow>
 
-							{entries.map((entry: NonspecificEntry) => {
-								const { sourceAccountId, destAccountId } = (entry.type === 'TRANSFER_ENTRY' ? entry : {})
+							{entries.map((entry: JournalEntry) => {
+								const { sourceAccountId } = entry
+								let destinationAccountId: string | undefined = undefined
+								if (entry.transfer) {
+									destinationAccountId = entry.transfer.destAccountId
+								}
 								const sourceAccount: Account | undefined = sourceAccountId
 									? getAccountsQuery.data[sourceAccountId]
 									: undefined
 
-								const destinationAccount: Account | undefined = destAccountId
-									? getAccountsQuery.data[destAccountId]
+								const destinationAccount: Account | undefined = destinationAccountId
+									? getAccountsQuery.data[destinationAccountId]
 									: undefined
 
 								const { categoryId } = entry
@@ -300,7 +302,7 @@ export default function JournalEntryList(props: JournalEntryListProps) {
 										onClick={(event) => props.onClickListItem(event, entry)}
 										onDoubleClick={(event) => props.onDoubleClickListItem(event, entry)}
 										selected={journalSliceContext.selectedRows[entry._id]}
-										sx={{ opacity: entry.type === 'TENTATIVE_JOURNAL_ENTRY_RECURRENCE' ? '0.5' : undefined }}
+										sx={{ opacity: undefined }}
 									>
 										<TableCell
 											selectCheckbox

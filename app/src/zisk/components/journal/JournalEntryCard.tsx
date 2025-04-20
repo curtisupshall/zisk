@@ -68,7 +68,7 @@ export default function JournalEntryCard(props: JournalEntryCardProps) {
 	}
 
 	const handleEditJournalEntry = (entry: NonspecificEntry) => {
-		if (entry.type === JOURNAL_ENTRY.value || entry.type === TRANSFER_ENTRY.value) {
+		if (entry.kind === JOURNAL_ENTRY.value || entry.kind === TRANSFER_ENTRY.value) {
 			editJournalEntry(entry)
 		} else {
 			// TODO could add logic for editing a tentative entry?

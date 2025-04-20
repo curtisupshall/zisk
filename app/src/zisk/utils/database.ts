@@ -21,7 +21,7 @@ export const makeDefaultZiskMeta = (): ZiskMeta => {
 	return {
 		_id: generateGenericUniqueId(),
 		activeJournalId: null,
-		type: 'ZISK_META',
+		kind: 'ZISK_META',
 		settings: makeDefaultZiskSettings(),
 		createdAt: new Date().toISOString(),
 	}

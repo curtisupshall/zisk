@@ -45,7 +45,6 @@ export default function EntryArtifactsForm() {
 				originalFileName: file.name,
 				description: '',
 			}, journalId)
-			console.log('NEW artifact:', artifact)
 
 			newArtifacts.push(artifact)
 			newAttachments[artifact._id] = {

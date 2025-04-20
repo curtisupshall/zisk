@@ -8,10 +8,10 @@ export default class SingleCategory implements Migration {
         const categories = SingleCategory.getJournalCategories(records)
 
         return records.reduce((acc: ZiskDocument[], record: ZiskDocument) => {
-            if (record.type === 'JOURNAL') {
+            if (record.kind === 'zisk:journal') {
                 return [record, ...acc]
             }
-            if (record.type === 'JOURNAL_ENTRY') {
+            if (record.kind === 'JOURNAL_ENTRY') {
                 const categoryId = ((record as any).categoryIds as undefined | string[])?.find((categoryId) => Boolean(categories[categoryId]))
                 if (categoryId) {
                     record.categoryId = categoryId
@@ -25,7 +25,7 @@ export default class SingleCategory implements Migration {
 
     private static getJournalCategories(records: ZiskDocument[]): Record<string, Category> {
         return records.reduce((acc: Record<string, Category>, record: ZiskDocument) => {
-            if (record.type === 'CATEGORY') {
+            if (record.kind === 'zisk:category') {
                 if (!(record._id in acc)) {
                     acc[record._id] = record
                 }

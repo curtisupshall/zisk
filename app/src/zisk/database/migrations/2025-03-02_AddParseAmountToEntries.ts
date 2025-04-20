@@ -6,10 +6,10 @@ export default class AddParseAmountToEntries implements Migration {
     public description = 'Adds the parseAmount field to journal entries'
     public run: MigrationRun = async (records) => {
         return records.reduce((acc: ZiskDocument[], record: ZiskDocument) => {
-            if (record.type === 'JOURNAL') {
+            if (record.kind === 'zisk:journal') {
                 return [record, ...acc]
             }
-            if (record.type === 'JOURNAL_ENTRY') {
+            if (record.kind === 'JOURNAL_ENTRY') {
                 let parsedNetAmount: number | undefined = undefined
                 if (record.amount) {
                     parsedNetAmount = AddParseAmountToEntries.calculateNetAmount(record)
