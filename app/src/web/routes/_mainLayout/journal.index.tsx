@@ -1,4 +1,4 @@
-import { DateViewSymbol } from '@/types/schema'
+import { DateViewSymbol } from '@/schema/support/slice'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_mainLayout/journal/')({

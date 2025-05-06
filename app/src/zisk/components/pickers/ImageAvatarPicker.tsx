@@ -1,10 +1,10 @@
-import { Avatar, AvatarVariant } from '@/types/schema'
 import { createImageAvatar, getPaletteColors } from '@/utils/image'
 import { AddPhotoAlternate, RemoveCircle } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Avatar as MuiAvatar, AvatarProps, Box, Button, FormHelperText, Stack } from '@mui/material'
 import { useMemo, useRef, useState } from 'react'
 import ColorPicker from './ColorPicker'
+import { Avatar, AvatarVariant } from '@/schema/models/Avatar'
 
 interface ImageAvatarPicker {
 	value: Avatar
@@ -33,7 +33,7 @@ export default function ImageAvatarPicker(props: ImageAvatarPicker) {
 		return [
 			Boolean(props.value),
 			Boolean(props.value?.content),
-			props.value?.variant === AvatarVariant.Enum.IMAGE,
+			props.value?.variant === AvatarVariant.enum.IMAGE,
 		].every(Boolean)
 	}, [props.value])
 

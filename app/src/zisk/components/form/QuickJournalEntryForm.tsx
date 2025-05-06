@@ -1,8 +1,8 @@
 import { Grid2 as Grid, TextField } from '@mui/material'
 import { Controller, useFormContext } from 'react-hook-form'
-import { CreateQuickJournalEntry } from '@/types/schema'
 import CategoryAutocomplete from '../input/CategoryAutocomplete'
 import AmountField from '../input/AmountField'
+import { CreateQuickJournalEntry } from '@/schema/models/QuickJournalEntry'
 
 export default function QuickJournalEntryForm() {
 	// const [manuallySetCategory, setManuallySetCategory] = useState<boolean>(false);

@@ -7,9 +7,8 @@ import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { ZiskContext } from '@/contexts/ZiskContext'
 import { updateActiveJournal, createJournalEntry, getAllJournalObjects } from '@/database/actions'
 import { getDatabaseClient } from '@/database/client'
-import { MigrationEngine } from '@/database/migrate'
+// import { MigrationEngine } from '@/database/migrate'
 import { getAccounts, getCategories, getEntryTags, getJournals } from '@/database/queries'
-import { Account, Category, EntryTag, JournalEntry, JournalMeta } from '@/types/schema'
 import useKeyboardAction from '@/hooks/useKeyboardAction'
 import { KeyboardActionName } from '@/constants/keyboard'
 import { makeJournalEntry } from '@/utils/journal'
@@ -17,6 +16,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Journal } from '@/schema/documents/Journal'
+import { Category } from '@/schema/documents/Category'
+import { EntryTag } from '@/schema/documents/EntryTag'
+import { Account } from '@/schema/documents/Account'
+import { CreateJournalEntry, JournalEntry } from '@/schema/documents/JournalEntry'
 
 const db = getDatabaseClient()
 
@@ -39,16 +43,16 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 	const [showCreateJournalModal, setShowCreateJournalModal] = useState(false)
 
 	// The currently active journal
-	const [activeJournal, setActiveJournal] = useState<JournalMeta | null>(null)
+	const [activeJournal, setActiveJournal] = useState<Journal | null>(null)
 	// The journal selected in the SelectJournalModal
-	const [selectedJournal, setSelectedJournal] = useState<JournalMeta | null>(null)
+	const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null)
 
 	const { snackbar } = useContext(NotificationsContext)
 	const ziskContext = useContext(ZiskContext)
 
 	const hasSelectedJournal = Boolean(activeJournal)
 
-	const getJournalsQuery = useQuery<Record<JournalMeta['_id'], JournalMeta>>({
+	const getJournalsQuery = useQuery<Record<Journal['_id'], Journal>>({
 		queryKey: ['journals'],
 		queryFn: getJournals,
 		initialData: {},
@@ -94,7 +98,7 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 		if (!activeJournal) {
 			return
 		}
-		const entry: JournalEntry = makeJournalEntry(values as Partial<JournalEntry>, activeJournal._id)
+		const entry: JournalEntry = makeJournalEntry(values as CreateJournalEntry, activeJournal._id)
 
 		createJournalEntry(entry)
 
@@ -118,20 +122,24 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 		setShowSelectJournalModal(true)
 	}
 
-	const _migrateJournal = async (journal: JournalMeta): Promise<JournalMeta> => {
-		if (!MigrationEngine.shouldMigrate(journal)) {
-			console.log(`Journal ${journal.journalName}@${journal.journalVersion} is on the latest version.`)
-			return journal
-		} else {
-			console.log('Migrating...')
-		}
-		const journalObjects = await getAllJournalObjects(journal._id)
-		const [updatedJournal, ...rest] = await MigrationEngine.migrate([journal, ...journalObjects])
-		await db.bulkDocs([updatedJournal, ...rest])
-		return updatedJournal
+	const _migrateJournal = async (journal: Journal): Promise<Journal> => {
+		// if (!MigrationEngine.shouldMigrate(journal)) {
+		// 	// console.log(`Journal ${journal.journalName}@${journal.journalVersion} is on the latest version.`)
+		// 	return journal
+		// } else {
+		// 	console.log('Migrating...')
+		// }
+		// const journalObjects = await getAllJournalObjects(journal._id)
+		// const [updatedJournal, ...rest] = await MigrationEngine.migrate([journal, ...journalObjects])
+		// await db.bulkDocs([updatedJournal, ...rest])
+		// return updatedJournal
+
+		// TODO fix after ZK-132
+
+		return journal;
 	}
 
-	const loadActiveJournal = async (journal: JournalMeta): Promise<JournalMeta> => {
+	const loadActiveJournal = async (journal: Journal): Promise<Journal> => {
 		// const updatedJournal = await migrateJournal(journal)
 		const updatedJournal = journal // Migrations are deprecated for now
 		
@@ -139,7 +147,7 @@ export default function JournalContextProvider(props: PropsWithChildren) {
 		return updatedJournal
 	}
 
-	const handleSelectJournal = async (journal: JournalMeta): Promise<void> => {		
+	const handleSelectJournal = async (journal: Journal): Promise<void> => {		
 		loadActiveJournal(journal).then((updatedJournal) => {
 			if (updatedJournal) {
 				snackbar({ message: `Switched to ${updatedJournal.journalName || PLACEHOLDER_UNNAMED_JOURNAL_NAME}` })

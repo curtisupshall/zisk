@@ -7,7 +7,7 @@ import { useContext } from 'react'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { createAccount } from '@/database/actions'
 import { JournalContext } from '@/contexts/JournalContext'
-import { CreateAccount } from '@/types/schema'
+import { CreateAccount } from '@/schema/documents/Account'
 import { DEFAULT_AVATAR } from '../pickers/AvatarPicker'
 
 interface CreateAccountModalProps {

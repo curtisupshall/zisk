@@ -3,13 +3,13 @@ import AmountField from "../input/AmountField"
 import CategoryAutocomplete from "../input/CategoryAutocomplete"
 import { Add, DeleteOutline, EditNote, LocalOffer, LocalOfferOutlined } from "@mui/icons-material"
 import { useCallback, useContext, useRef, useState } from "react"
-import { JournalEntry } from "@/types/schema"
 import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-form"
 import SelectionActionModal from "../modal/SelectionActionModal"
 import { JournalContext } from "@/contexts/JournalContext"
 import { makeJournalEntry } from "@/utils/journal"
 import { EntryTagPicker } from "../pickers/EntryTagPicker"
-import { RESERVED_TAGS } from "@/constants/tags"
+import { JournalEntry } from "@/schema/documents/JournalEntry"
+import { StatusVariant } from "@/schema/models/EntryStatus"
 
 export default function ChildJournalEntryForm() {
     const [selectedRows, setSelectedRows] = useState<string[]>([])
@@ -109,9 +109,10 @@ export default function ChildJournalEntryForm() {
             <Stack mt={2} mx={-1} gap={2}>
                 {childEntriesFieldArray.fields.map((entry, index) => {
                     const childEntryId: string = watch(`children.${index}._id`)
-                    const childTags = watch(`children.${index}.tagIds`) ?? []
-                    const isTagged = childTags.length > 0
-                    const isApproximate = childTags.some((tagId) => tagId === RESERVED_TAGS.APPROXIMATE._id)
+                    const childStatusIds = watch(`children.${index}.statusIds`) ?? []
+                    const childTagIds = watch(`children.${index}.tagIds`) ?? []
+                    const isTagged = childTagIds.length > 0
+                    const isApproximate = childStatusIds.some((status) => status === StatusVariant.enum.APPROXIMATE)
                     const hasMemo = journalEntriesWithMemos.includes(entry._id) || Boolean(entry.memo)
                     
                     return (
@@ -128,7 +129,8 @@ export default function ChildJournalEntryForm() {
                             />
                             <Grid container columns={12} spacing={1} sx={{ flex: '1' }}>
                                 <Grid size={4}>
-                                    <Controller
+                                    <div>Amount...</div>
+                                    {/* <Controller
                                         control={control}
                                         name={`children.${index}.amount`}
                                         render={({ field }) => (
@@ -138,7 +140,7 @@ export default function ChildJournalEntryForm() {
                                                 approximate={isApproximate}
                                             />
                                         )}
-                                    />
+                                    /> */}
                                 </Grid>
                                 <Grid size={'grow'}>
                                     <CategoryAutocomplete

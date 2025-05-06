@@ -14,7 +14,7 @@ import { alpha, Card, CardContent, CardMedia, Chip, Skeleton, Stack, Tooltip, Ty
 import { formatBasisPointsDiff, getPriceString, PriceStringOptions } from '@/utils/string';
 import { InfoOutlined, TrendingDown, TrendingFlat, TrendingUp } from '@mui/icons-material';
 import { JournalContext } from '@/contexts/JournalContext';
-import { Category } from '@/types/schema';
+import { Category } from '@/schema/documents/Category';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Legend);
 

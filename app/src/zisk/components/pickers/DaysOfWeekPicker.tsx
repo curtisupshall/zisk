@@ -1,5 +1,5 @@
 import { DAYS_OF_WEEK_NAMES } from "@/constants/date"
-import { DayOfWeek } from "@/types/schema"
+import { DayOfWeek } from "@/schema/support/recurrence"
 import { Stack, ToggleButton, Tooltip } from "@mui/material"
 
 interface DaysOfWeekPickerProps {

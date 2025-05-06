@@ -4,12 +4,12 @@ import QuickJournalEntryForm from '../form/QuickJournalEntryForm'
 import { Box, Button, Stack } from '@mui/material'
 import { Add, Save } from '@mui/icons-material'
 import { useContext, useState } from 'react'
-import { CreateQuickJournalEntry, JournalEntry } from '@/types/schema'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { JournalContext } from '@/contexts/JournalContext'
 import { makeJournalEntry } from '@/utils/journal'
 import { createJournalEntry } from '@/database/actions'
 import { JournalSliceContext } from '@/contexts/JournalSliceContext'
+import { CreateQuickJournalEntry } from '@/schema/models/QuickJournalEntry'
 
 interface QuickJournalEditorProps {
 	onAdd?: () => void
@@ -31,22 +31,26 @@ export default function QuickJournalEditor(props: QuickJournalEditorProps) {
 		resolver: zodResolver(CreateQuickJournalEntry),
 	})
 
-	const handleCreateQuickJournalEntry = async (formData: CreateQuickJournalEntry) => {
-		if (!journal) {
-			return
-		}
-		const journalEntry: JournalEntry = makeJournalEntry({
-			amount: formData.amount,
-			memo: formData.memo,
-			categoryId: formData.categoryId
-		}, journal._id)
+	const handleCreateQuickJournalEntry = async (_formData: CreateQuickJournalEntry) => {
+		return;
 
-		await createJournalEntry(journalEntry)
-		refetchAllDependantQueries()
-		setIsActive(false)
-		snackbar({ message: 'Created journal entry.' })
-		props.onAdd?.()
-		createQuickJournalEntryForm.reset()
+		// TODO fix after ZK-132
+
+		// if (!journal) {
+		// 	return
+		// }
+		// const journalEntry: JournalEntry = makeJournalEntry({
+		// 	amount: formData.amount,
+		// 	memo: formData.memo,
+		// 	categoryId: formData.categoryId
+		// }, journal._id)
+
+		// await createJournalEntry(journalEntry)
+		// refetchAllDependantQueries()
+		// setIsActive(false)
+		// snackbar({ message: 'Created journal entry.' })
+		// props.onAdd?.()
+		// createQuickJournalEntryForm.reset()
 	}
 
 	return (

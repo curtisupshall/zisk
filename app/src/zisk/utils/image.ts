@@ -1,6 +1,5 @@
+import { Avatar } from "@/schema/models/Avatar";
 import { Vibrant } from "node-vibrant/browser";
-
-import { Avatar } from "@/types/schema";
 
 export async function createImageAvatar(file: File): Promise<Avatar> {
     const image = await loadImage(file);
@@ -9,6 +8,7 @@ export async function createImageAvatar(file: File): Promise<Avatar> {
     const resizedBase64 = resizeImage(image, 64, 64);
 
     return {
+        kind: 'zisk:avatar',
         content: resizedBase64, // `data:image/png;base64,${resizedBase64}`,
         variant: 'IMAGE',
         primaryColor: '',

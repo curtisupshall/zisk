@@ -1,6 +1,6 @@
 import JournalEditor from '@/components/journal/JournalEditor'
 import JournalSliceContextProvider from '@/providers/JournalSliceContextProvider'
-import { DatePeriod, DateView, DateViewSymbol, MonthlyPeriod, WeeklyPeriod } from '@/types/schema'
+import { DatePeriod, DateView, DateViewSymbol, MonthlyPeriod, WeeklyPeriod } from '@/schema/support/slice'
 import { dateMonthNumberWithLeadingZero, getAbsoluteDateRangeFromDateView, getAnnualPeriodFromDate, getMonthlyPeriodFromDate, getWeeklyPeriodFromDate } from '@/utils/date'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'

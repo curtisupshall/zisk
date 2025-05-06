@@ -1,6 +1,8 @@
 import { SelectAllAction } from '@/components/journal/ribbon/JournalEntrySelectionActions'
 import { JournalFilterSlot } from '@/components/journal/ribbon/JournalFilterPicker'
-import { AmountRange, Analytics, DateView, DateViewSymbol, JournalEntry, JournalSlice } from '@/types/schema'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
+import { Analytics } from '@/schema/support/analytics'
+import { AmountRange, DateView, DateViewSymbol, JournalSlice } from '@/schema/support/slice'
 import { DefinedUseQueryResult } from '@tanstack/react-query'
 import { createContext } from 'react'
 

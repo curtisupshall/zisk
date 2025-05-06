@@ -16,13 +16,13 @@ import {
     Typography
 } from "@mui/material";
 import { Close, Done, Settings } from "@mui/icons-material";
-import { Category } from "@/types/schema";
 import AvatarChip from "../icon/AvatarChip";
 import { JournalContext } from "@/contexts/JournalContext";
 import AvatarIcon from "../icon/AvatarIcon";
 import { createCategory } from "@/database/actions";
 import clsx from "clsx";
 import { generateRandomAvatar } from "@/utils/journal";
+import { Category } from "@/schema/documents/Category";
 
 type CategorySelectorProps = Omit<CategoryAutocompleteProps, 'renderInput'>
 

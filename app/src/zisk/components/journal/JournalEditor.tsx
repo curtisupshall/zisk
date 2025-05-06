@@ -1,7 +1,6 @@
 import { MouseEvent, useContext, useEffect, useMemo, useState } from 'react'
 import { Box, Collapse, Divider, Paper, Stack } from '@mui/material'
 import JournalHeader from './ribbon/JournalHeader'
-import { JournalEntry } from '@/types/schema'
 import JournalEntryCard from './JournalEntryCard'
 import { deleteJournalEntry } from '@/database/actions'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
@@ -12,6 +11,7 @@ import { getDatabaseClient } from '@/database/client'
 import SpendChart from '../chart/SpendChart'
 import CategorySpreadChart from '../chart/CategorySpreadChart'
 import { useSearch } from '@tanstack/react-router'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
 
 export interface JournalEntrySelection {
 	entry: JournalEntry | null

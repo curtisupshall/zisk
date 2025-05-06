@@ -1,5 +1,4 @@
 import { JournalContext } from '@/contexts/JournalContext'
-import { CreateJournalMeta, JournalMeta } from '@/types/schema'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material'
 import { useContext, useEffect } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
@@ -7,11 +6,12 @@ import AvatarPicker, { DEFAULT_AVATAR } from '../pickers/AvatarPicker'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createJournal } from '@/database/actions'
 import ImportJournalForm from '../form/ImportJournalForm'
+import { CreateJournal, Journal } from '@/schema/documents/Journal'
 
 interface CreateJournalModalProps {
 	open: boolean
 	onClose: () => void
-	onCreated: (newJournal: JournalMeta) => void
+	onCreated: (newJournal: Journal) => void
 }
 
 const DEFAULT_JOURNAL_AVATAR = {
@@ -21,17 +21,17 @@ const DEFAULT_JOURNAL_AVATAR = {
 export default function CreateJournalModal(props: CreateJournalModalProps) {
 	const journalContext = useContext(JournalContext)
 
-	const createJournalForm = useForm<CreateJournalMeta>({
+	const createJournalForm = useForm<CreateJournal>({
 		defaultValues: {
 			avatar: {
 				...DEFAULT_JOURNAL_AVATAR,
 			},
 			journalName: '',
 		},
-		resolver: zodResolver(CreateJournalMeta),
+		resolver: zodResolver(CreateJournal),
 	})
 
-	const handleSubmit = async (formData: CreateJournalMeta) => {
+	const handleSubmit = async (formData: CreateJournal) => {
 		// Create a new journal
 		const newJournal = await createJournal({
 			...formData,

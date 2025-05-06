@@ -1,5 +1,4 @@
 import { JournalContext } from '@/contexts/JournalContext'
-import { JournalMeta } from '@/types/schema'
 import { Add, East, InfoOutlined } from '@mui/icons-material'
 import {
 	Avatar,
@@ -22,19 +21,20 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import AvatarIcon from '../icon/AvatarIcon'
 import { PLACEHOLDER_UNNAMED_JOURNAL_NAME } from '@/constants/journal'
 import ManageJournalModal from './ManageJournalModal'
+import { Journal } from '@/schema/documents/Journal'
 
 interface SelectJournalModal {
 	open: boolean
-	initialSelection: JournalMeta | null
+	initialSelection: Journal | null
 	onClose: () => void
-	onSelect: (journal: JournalMeta) => void
+	onSelect: (journal: Journal) => void
 	onPromptCreate: () => void
 }
 
 export default function SelectJournalModal(props: SelectJournalModal) {
 	const journalContext = useContext(JournalContext)
 	const [showManageJournalModal, setShowManageJournalModal] = useState(false)
-	const [selectedJournal, setSelectedJournal] = useState<JournalMeta | null>(props.initialSelection)
+	const [selectedJournal, setSelectedJournal] = useState<Journal | null>(props.initialSelection)
 
 	useEffect(() => {
 		setSelectedJournal(journalContext.journal)
@@ -44,7 +44,7 @@ export default function SelectJournalModal(props: SelectJournalModal) {
 		setSelectedJournal(props.initialSelection)
 	}, [props.initialSelection])
 
-	const journals: JournalMeta[] = useMemo(() => {
+	const journals: Journal[] = useMemo(() => {
 		return Object.values(journalContext.getJournalsQuery.data)
 	}, [journalContext.getJournalsQuery.data])
 
@@ -55,12 +55,12 @@ export default function SelectJournalModal(props: SelectJournalModal) {
 		props.onSelect(selectedJournal)
 	}
 
-	const handleManageJournal = (journal: JournalMeta) => {
+	const handleManageJournal = (journal: Journal) => {
 		setSelectedJournal(journal)
 		setShowManageJournalModal(true)
 	}
 
-	const handleDeletedJournal = (journal: JournalMeta) => {
+	const handleDeletedJournal = (journal: Journal) => {
 		// If the deleted journal is the active journal, reset the active journal
 		if (journal._id === journalContext.journal?._id) {
 			journalContext.closeActiveJournal()

@@ -1,7 +1,8 @@
 import { ZiskContext } from "@/contexts/ZiskContext"
 import { updateSettings } from "@/database/actions"
 import { getOrCreateZiskMeta } from "@/database/queries"
-import { ZiskMeta, ZiskSettings } from "@/types/schema"
+import { ZiskMeta } from "@/schema/documents/ZiskMeta"
+import { UserSettings } from "@/schema/models/UserSettings"
 import { useQuery } from "@tanstack/react-query"
 import { PropsWithChildren, useEffect, useState } from "react"
 
@@ -15,20 +16,20 @@ export default function ZiskContextProvider(props: PropsWithChildren) {
         enabled: true,
     })
 
-    const updateZiskSettings = async (settings: Partial<ZiskSettings>): Promise<void> => {
+    const updateZiskSettings = async (newSettings: Partial<UserSettings>): Promise<void> => {
         setZiskMeta((prev) => {
             if (!prev) {
                 return null
             }
             return {
                 ...prev,
-                settings: {
-                    ...prev.settings,
-                    ...settings,
+                userSettings: {
+                    ...prev.userSettings,
+                    ...newSettings,
                 }
             }
         })
-        await updateSettings(settings)
+        await updateSettings(newSettings)
     }
 
     useEffect(() => {

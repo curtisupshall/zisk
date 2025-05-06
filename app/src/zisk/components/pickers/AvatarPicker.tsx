@@ -2,7 +2,7 @@ import { Box, colors, Fade, Icon, Popover, Select, Tab, Tabs } from '@mui/materi
 import { useState } from 'react'
 import IconPicker from './IconPicker'
 import ImageAvatarPicker, { ImageAvatar } from './ImageAvatarPicker'
-import { Avatar, AvatarVariant } from '@/types/schema'
+import { Avatar, AvatarVariant } from '@/schema/models/Avatar'
 
 interface AvatarPickerProps {
 	value: Avatar | null
@@ -10,16 +10,17 @@ interface AvatarPickerProps {
 }
 
 export const DEFAULT_AVATAR: Avatar = {
+	kind: 'zisk:avatar',
 	content: 'layers',
-	variant: AvatarVariant.Enum.PICTORIAL,
+	variant: AvatarVariant.enum.PICTORIAL,
 	primaryColor: colors.grey[500],
 }
 
 const renderAvatarItem = (avatar: Avatar) => {
 	switch (avatar.variant) {
-		case AvatarVariant.Enum.PICTORIAL:
+		case AvatarVariant.enum.PICTORIAL:
 			return <Icon sx={{ color: avatar.primaryColor }}>{avatar.content}</Icon>
-		case AvatarVariant.Enum.IMAGE:
+		case AvatarVariant.enum.IMAGE:
 			return <ImageAvatar avatar={avatar} sx={{ my: -0.5, width: '32px', height: '32px' }} />
 		default:
 			return null

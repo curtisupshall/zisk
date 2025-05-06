@@ -1,8 +1,10 @@
-import { ZiskMeta, ZiskSettings } from '@/types/schema'
+import { ZiskMeta } from '@/schema/documents/ZiskMeta'
 import { generateGenericUniqueId } from './id'
+import { UserSettings } from '@/schema/models/UserSettings'
 
-export const makeDefaultZiskSettings = (): ZiskSettings => {
+export const makeDefaultUserSettings = (): UserSettings => {
 	return {
+		kind: 'zisk:usersettings',
 		appearance: {
 			// theme: 'DARK',
 			// animations: 'NORMAL',
@@ -19,10 +21,10 @@ export const makeDefaultZiskSettings = (): ZiskSettings => {
 
 export const makeDefaultZiskMeta = (): ZiskMeta => {
 	return {
+		kind: 'zisk:meta',
 		_id: generateGenericUniqueId(),
 		activeJournalId: null,
-		kind: 'ZISK_META',
-		settings: makeDefaultZiskSettings(),
+		userSettings: makeDefaultUserSettings(),
 		createdAt: new Date().toISOString(),
 	}
 }

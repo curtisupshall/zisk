@@ -4,10 +4,10 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import ServerWidget from "../widget/ServerWidget";
 import { Shuffle } from "@mui/icons-material";
 import { ZiskContext } from "@/contexts/ZiskContext";
-import { ZiskSettings } from "@/types/schema";
 import { LoadingButton } from "@mui/lab";
 import { isValidUrl } from "@/utils/server";
 import { testCouchDbConnection } from "@/utils/database";
+import { UserSettings } from "@/schema/models/UserSettings";
 
 type SyncStrategyType = 'LOCAL' | 'CUSTOM_SERVER_OR_ZISK_CLOUD' | 'COUCH_DB'
 
@@ -18,7 +18,7 @@ interface SwitchSyncStrategyModalProps {
 
 export default function SwitchSyncStrategyModal(props: SwitchSyncStrategyModalProps) {
     const ziskContext = useContext(ZiskContext)
-    const settings: ZiskSettings | undefined = ziskContext.data?.settings
+    const settings: UserSettings | undefined = ziskContext.data?.userSettings
     const currentServer = settings?.server
     const currentSyncStrategy = settings?.syncingStrategy
     

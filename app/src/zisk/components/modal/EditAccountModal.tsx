@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useContext, useEffect } from 'react'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { updateAccount } from '@/database/actions'
-import { Account } from '@/types/schema'
+import { Account } from '@/schema/documents/Account'
 
 interface EditAccountModalProps {
 	open: boolean

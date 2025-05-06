@@ -2,7 +2,8 @@ import { Box, FormHelperText, Stack, TextField } from '@mui/material'
 import { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import AvatarPicker from '../pickers/AvatarPicker'
-import { Avatar, Category, CreateCategory } from '@/types/schema'
+import { Avatar } from '@/schema/models/Avatar'
+import { Category, CreateCategory } from '@/schema/documents/Category'
 
 export default function CategoryForm() {
 	const { register, setValue, watch } = useFormContext<CreateCategory | Category>()

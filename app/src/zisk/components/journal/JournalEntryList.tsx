@@ -19,7 +19,6 @@ import {
 } from '@mui/material'
 import { useContext, useMemo } from 'react'
 
-import { Account, Category, EntryTask, JournalEntry, ReservedTagKey } from '@/types/schema'
 import dayjs from 'dayjs'
 import AvatarIcon from '@/components/icon/AvatarIcon'
 import { getPriceString } from '@/utils/string'
@@ -28,12 +27,17 @@ import QuickJournalEditor from './QuickJournalEditor'
 import { Flag, LocalOffer, Pending, Update } from '@mui/icons-material'
 import { JournalContext } from '@/contexts/JournalContext'
 import { PLACEHOLDER_UNNAMED_JOURNAL_ENTRY_MEMO } from '@/constants/journal'
-import { calculateNetAmount, journalEntryHasUserDefinedTags, journalEntryHasTasks, enumerateJournalEntryReservedTag } from '@/utils/journal'
+import { calculateNetAmount, journalEntryHasTasks, enumerateJournalEntryStatuses } from '@/utils/journal'
 import { useGetPriceStyle } from '@/hooks/useGetPriceStyle'
 import { JournalSliceContext } from '@/contexts/JournalSliceContext'
 import clsx from 'clsx'
 import { dateViewIsMonthlyPeriod, sortDatesChronologically } from '@/utils/date'
 import CircularProgressWithLabel from '../icon/CircularProgressWithLabel'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
+import { Account } from '@/schema/documents/Account'
+import { Category } from '@/schema/documents/Category'
+import { StatusVariant } from '@/schema/models/EntryStatus'
+import { EntryTask } from '@/schema/documents/EntryTask'
 
 interface JournalTableRowProps extends TableRowProps {
 	dateRow?: boolean
@@ -271,25 +275,25 @@ export default function JournalEntryList(props: JournalEntryListProps) {
 									: undefined
 
 								const netAmount = calculateNetAmount(entry)
-								
-								const hasTags = journalEntryHasUserDefinedTags(entry)
-								const childHasTags = (entry as JournalEntry).children?.some(journalEntryHasUserDefinedTags)
+
+								const hasTags = journalEntryHasTasks(entry)
+								const childHasTags = (entry as JournalEntry).children?.some((child) => journalEntryHasTasks((child as JournalEntry)))
 							
 								// Reserved Tags
 								const { parent: parentReservedTags, children: childReservedTags }
-									= enumerateJournalEntryReservedTag(entry)
+									= enumerateJournalEntryStatuses(entry)
 							
-								const isFlagged = parentReservedTags.has(ReservedTagKey.Enum.FLAGGED)
-								const isApproximate = parentReservedTags.has(ReservedTagKey.Enum.APPROXIMATE)
-								const isPending = parentReservedTags.has(ReservedTagKey.Enum.PENDING)
+								const isFlagged = parentReservedTags.has(StatusVariant.enum.FLAGGED)
+								const isApproximate = parentReservedTags.has(StatusVariant.enum.APPROXIMATE)
+								const isPending = parentReservedTags.has(StatusVariant.enum.PENDING)
 							
-								const childIsFlagged = childReservedTags.has(ReservedTagKey.Enum.FLAGGED)
-								const childIsApproximate = childReservedTags.has(ReservedTagKey.Enum.APPROXIMATE)
-								const childIsPending = childReservedTags.has(ReservedTagKey.Enum.PENDING)
+								const childIsFlagged = childReservedTags.has(StatusVariant.enum.FLAGGED)
+								const childIsApproximate = childReservedTags.has(StatusVariant.enum.APPROXIMATE)
+								const childIsPending = childReservedTags.has(StatusVariant.enum.PENDING)
 								
 								const hasTasks = journalEntryHasTasks(entry)
 								const tasks: EntryTask[] = entry.tasks ?? []
-								const numCompletedTasks: number = hasTasks ? tasks.filter((task) => task.completedAt).length : 0
+								const numCompletedTasks: number = hasTasks ? tasks.filter((task: EntryTask) => task.completedAt).length : 0
 								const taskProgressString = Math.max(numCompletedTasks, tasks.length) > 9
 									? '9+'
 									: `${numCompletedTasks}/${tasks.length}`
