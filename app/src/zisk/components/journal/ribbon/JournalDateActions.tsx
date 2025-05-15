@@ -1,4 +1,3 @@
-import { DateViewSymbol, JournalEntry } from '@/types/schema'
 import { dateViewIsAnnualPeriod, dateViewIsMonthlyPeriod, dateViewIsRange, dateViewIsWeeklyPeriod, getAbsoluteDateRangeFromDateView, getAnnualPeriodFromDate, getDateViewSymbol, getEmpiracleDateRangeFromJournalEntries, getMonthlyPeriodFromDate, getWeeklyPeriodFromDate } from '@/utils/date'
 import {
 	ArrowBack,
@@ -15,6 +14,8 @@ import KeyboardShortcut from '../../text/KeyboardShortcut'
 import useKeyboardAction from '@/hooks/useKeyboardAction'
 import { JournalSliceContext } from '@/contexts/JournalSliceContext'
 import { KeyboardActionName } from '@/constants/keyboard'
+import { DateViewSymbol } from '@/schema/support/slice'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
 
 const dateViewMenuOptionLabels: Record<DateViewSymbol, string> = {
     [DateViewSymbol.WEEKLY]: 'Week',

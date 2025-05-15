@@ -3,7 +3,9 @@ import { JournalFilterSlot } from '@/components/journal/ribbon/JournalFilterPick
 import { JournalContext } from '@/contexts/JournalContext'
 import { JournalEditorState, JournalSliceContext } from '@/contexts/JournalSliceContext'
 import { getJournalEntries } from '@/database/queries'
-import { AmountRange, Analytics, JournalEntry, JournalSlice } from '@/types/schema'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
+import { Analytics } from '@/schema/support/analytics'
+import { AmountRange, JournalSlice } from '@/schema/support/slice'
 import { generateAnalytics } from '@/utils/analytics'
 import { enumerateFilters } from '@/utils/filtering'
 import { calculateNetAmount } from '@/utils/journal'
@@ -21,7 +23,7 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 
 	const journalContext = useContext(JournalContext)
 
-	const hasSelectedJournal = Boolean(journalContext.journal)
+	const hasSelectedJournal = Boolean(journalContext.activeJournalId)
 
 	const journalSlice: JournalSlice = useMemo(() => {
 		return {
@@ -80,10 +82,10 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 	const getJournalEntriesQuery = useQuery<Record<JournalEntry['_id'], JournalEntry>>({
 		queryKey: ['journalEntries', journalSlice],
 		queryFn: async () => {
-			if (!journalContext.journal) {
+			if (!journalContext.activeJournalId) {
 				return {}
 			}
-			return getJournalEntries(journalSlice, journalContext.journal._id)
+			return getJournalEntries(journalSlice, journalContext.activeJournalId)
 		},
 		initialData: {},
 		enabled: hasSelectedJournal,
@@ -191,17 +193,17 @@ export default function JournalSliceContextProvider(props: JournalSliceContextPr
 		})
 	}
 
-	useEffect(() => {
-		if (!journalContext.journal) {
-			return
-		}
+	// useEffect(() => {
+	// 	if (!journalContext.journal) {
+	// 		return
+	// 	}
 
-		refetchAllDependantQueries()
-	}, [
-		journalContext.journal,
-		journalContext.getCategoriesQuery.data,
-		journalContext.getEntryTagsQuery.data,
-	])
+	// 	refetchAllDependantQueries()
+	// }, [
+	// 	journalContext.journal,
+	// 	journalContext.getCategoriesQuery.data,
+	// 	journalContext.getEntryTagsQuery.data,
+	// ])
 
 	useEffect(() => {
 		setSelectedRows({})

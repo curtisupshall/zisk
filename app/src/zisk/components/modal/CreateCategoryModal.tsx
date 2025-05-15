@@ -7,8 +7,8 @@ import { useContext } from 'react'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { createCategory } from '@/database/actions'
 import { JournalContext } from '@/contexts/JournalContext'
-import { CreateCategory } from '@/types/schema'
 import { DEFAULT_AVATAR } from '../pickers/AvatarPicker'
+import { CreateCategory } from '@/schema/documents/Category'
 
 interface CreateCategoryModalProps {
 	open: boolean

@@ -1,25 +1,24 @@
-import {
-	Account,
-	AmountRange,
-	Category,
-	EntryArtifact,
-	EntryTag,
-	JournalEntry,
-	JournalMeta,
-	JournalSlice,
-	ZiskMeta,
-} from '@/types/schema'
 import { getDatabaseClient } from './client'
 import { makeDefaultZiskMeta } from '@/utils/database'
 import { getAbsoluteDateRangeFromDateView } from '@/utils/date'
 import { enumerateFilters, transformAmountRange } from '@/utils/filtering'
 import { JournalFilterSlot } from '@/components/journal/ribbon/JournalFilterPicker'
+import { Category } from '@/schema/documents/Category'
+import { Account } from '@/schema/documents/Account'
+import { AmountRange, JournalSlice } from '@/schema/support/slice'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
+import { EntryTag } from '@/schema/documents/EntryTag'
+import { ZiskMeta } from '@/schema/documents/ZiskMeta'
+import { Journal } from '@/schema/documents/Journal'
+import { EntryArtifact } from '@/schema/documents/EntryArtifact'
+import { resolve } from 'path'
+import { UpstreamAttributeFilter } from '@/filters/support/AttributeFilter'
 
 const db = getDatabaseClient()
 
 export const ARBITRARY_MAX_FIND_LIMIT = 10000 as const;
 
-export const getCategories = async (journalId: string): Promise<Record<Category['_id'], Category>> => {
+export const getCategories = async (journalId: string): Promise<Record<string, Category>> => {
 	const result = await db.find({
 		selector: {
 			'$and': [
@@ -33,7 +32,7 @@ export const getCategories = async (journalId: string): Promise<Record<Category[
 	return Object.fromEntries((result.docs as Category[]).map((category) => [category._id, category]))
 }
 
-export const getAccounts = async (journalId: string): Promise<Record<Account['_id'], Account>> => {
+export const getAccounts = async (journalId: string): Promise<Record<string, Account>> => {
 	const result = await db.find({
 		selector: {
 			'$and': [
@@ -47,6 +46,9 @@ export const getAccounts = async (journalId: string): Promise<Record<Account['_i
 	return Object.fromEntries((result.docs as Account[]).map((account) => [account._id, account]))
 }
 
+/**
+ * @deprecated
+ */
 export const getJournalEntries = async (
 	journalSlice: JournalSlice,
 	journalId: string,
@@ -55,7 +57,7 @@ export const getJournalEntries = async (
 		{ kind: 'zisk:entry' },
 		{ journalId },
 	]
-	
+
 	// Date Range
 	const { startDate, endDate } = getAbsoluteDateRangeFromDateView(journalSlice.dateView)
 	if (startDate || endDate) {
@@ -103,31 +105,14 @@ export const getJournalEntries = async (
 	return entries
 }
 
-export const getRecurringEntries = async (
+export const getJournalEntriesByUpstreamFilters = async (
 	journalId: string,
+	filters: UpstreamAttributeFilter[],
 ): Promise<Record<string, JournalEntry>> => {
-	const selectorClauses: any[] = [
-		{ kind: 'zisk:entry' },
-		{ journalId },
-		{ recurs: {
-			$exists: true,
-		}}
-	]
-
-	const selector = {
-		'$and': selectorClauses,
-	}
-
-	const result = await db.find({
-		selector,
-		limit: ARBITRARY_MAX_FIND_LIMIT,
-	})
-
-	const entries = Object.fromEntries((result.docs as JournalEntry[]).map((entry) => [entry._id, entry])) as Record<string, JournalEntry>
-	return entries
+	// TODO
 }
 
-export const getEntryTags = async (journalId: string): Promise<Record<EntryTag['_id'], EntryTag>> => {
+export const getEntryTags = async (journalId: string): Promise<Record<string, EntryTag>> => {
 	const result = await db.find({
 		selector: {
 			'$and': [
@@ -145,7 +130,7 @@ export const getOrCreateZiskMeta = async (): Promise<ZiskMeta> => {
 	// Attempt to fetch the meta document by its key
 	const results = await db.find({
 		selector: {
-			kind: 'ZISK_META',
+			kind: 'zisk:meta',
 		},
 	})
 	if (results.docs.length > 0) {
@@ -157,7 +142,7 @@ export const getOrCreateZiskMeta = async (): Promise<ZiskMeta> => {
 	return meta
 }
 
-export const getJournals = async (): Promise<Record<JournalMeta['_id'], JournalMeta>> => {
+export const getJournals = async (): Promise<Record<string, Journal>> => {
 	const result = await db.find({
 		selector: {
 			kind: 'zisk:journal',
@@ -165,10 +150,10 @@ export const getJournals = async (): Promise<Record<JournalMeta['_id'], JournalM
 		limit: ARBITRARY_MAX_FIND_LIMIT,
 	})
 
-	return Object.fromEntries((result.docs as unknown as JournalMeta[]).map((journal) => [journal._id, journal]))
+	return Object.fromEntries((result.docs as unknown as Journal[]).map((journal) => [journal._id, journal]))
 }
 
-export const getArtifacts = async (journalId: string): Promise<Record<EntryArtifact['_id'], EntryArtifact>> => {
+export const getArtifacts = async (journalId: string): Promise<Record<string, EntryArtifact>> => {
 	const result = await db.find({
 		selector: {
 			'$and': [

@@ -18,6 +18,8 @@ import {
 import { ReactNode, useContext, useEffect } from 'react'
 import AppLogo from '../header/AppLogo'
 import { JournalContext } from '@/contexts/JournalContext'
+import { useOpenEntryEditModalForCreate } from '@/store/app/useJournalEntryEditModalState'
+
 
 const Link = (props: any) => {
 	return (
@@ -34,11 +36,12 @@ interface CreateEntryButtonProps extends AppMenuProps {
 }
 
 const CreateEntryButton = (props: CreateEntryButtonProps) => {
+	const openEntryEditModalForCreate = useOpenEntryEditModalForCreate()
+
 	const handleCreateEntry = () => {
-		journalContext.createJournalEntry()
+		openEntryEditModalForCreate()
 	}
 
-	const journalContext = useContext(JournalContext)
 	if (props.view === 'mobile') {
 		return (
 			<Fab

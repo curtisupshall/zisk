@@ -1,9 +1,8 @@
-import { JournalEntry } from "@/types/schema"
+import { JournalEntry } from "@/schema/documents/JournalEntry"
 import { EditNote } from "@mui/icons-material"
 import { Button, FormHelperText, Grow, Link, Stack, TextField, Typography } from "@mui/material"
 import { useState } from "react"
 import { Controller, useFormContext, useWatch } from "react-hook-form"
-
 
 export default function EntryNoteForm() {
     const { control, setValue } = useFormContext<JournalEntry>()

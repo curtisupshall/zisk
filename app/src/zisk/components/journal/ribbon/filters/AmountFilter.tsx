@@ -1,6 +1,6 @@
 import AmountField from "@/components/input/AmountField";
 import { JournalSliceContext } from "@/contexts/JournalSliceContext";
-import { AmountRange } from "@/types/schema";
+import { AmountRange } from "@/schema/support/slice";
 import { Stack, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
 import { useContext } from "react";
 

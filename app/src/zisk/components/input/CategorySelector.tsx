@@ -16,13 +16,14 @@ import {
     Typography
 } from "@mui/material";
 import { Close, Done, Settings } from "@mui/icons-material";
-import { Category } from "@/types/schema";
 import AvatarChip from "../icon/AvatarChip";
 import { JournalContext } from "@/contexts/JournalContext";
 import AvatarIcon from "../icon/AvatarIcon";
 import { createCategory } from "@/database/actions";
 import clsx from "clsx";
 import { generateRandomAvatar } from "@/utils/journal";
+import { Category } from "@/schema/documents/Category";
+import { useAddCategory, useCategories } from "@/store/orm/categories";
 
 type CategorySelectorProps = Omit<CategoryAutocompleteProps, 'renderInput'>
 
@@ -30,26 +31,29 @@ export default function CategorySelector(props: CategorySelectorProps) {
     const anchorRef = useRef<HTMLAnchorElement>(null);
     const [open, setOpen] = useState<boolean>(false)
     const [searchValue, setSearchValue] = useState<string>('')
-    const { getCategoriesQuery, journal } = useContext(JournalContext)
+    const { activeJournalId } = useContext(JournalContext)
+
+    const categories = useCategories()
+    const addCategory = useAddCategory()
+
     const value: string | undefined = !Array.isArray(props.value) && props.value || undefined
 
-    const selectedCategory: Category | undefined = value ? getCategoriesQuery.data[value] : undefined
+    const selectedCategory: Category | undefined = value ? categories[value] : undefined
 
     const handleClose = () => {
         setOpen(false)
     }
 
     const createCategoryWithValue = async () => {
-        if (!journal) {
+        if (!activeJournalId) {
             return
         }
-        const journalId = journal._id
-        await createCategory({
+        const category = await createCategory({
             label: searchValue,
             description: '',
             avatar: generateRandomAvatar(),
-        }, journalId)
-        getCategoriesQuery.refetch()
+        }, activeJournalId)
+        addCategory(category)
     }
 
     return (
@@ -141,7 +145,7 @@ export default function CategorySelector(props: CategorySelectorProps) {
                             )}
                             renderOption={(props, option, { selected }) => {
                                 const { key, ...optionProps } = props
-                                const category = getCategoriesQuery.data[option]
+                                const category: Category = categories[option]
 
                                 return (
                                     <ListItem key={key} {...optionProps}>

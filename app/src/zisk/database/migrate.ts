@@ -1,58 +1,64 @@
-import { JournalMeta, JournalVersion, ZiskDocument } from "@/types/schema";
+// import { Journal } from "@/schema/documents/Journal";
+// import { ZiskDocument } from "@/schema/union/ZiskDocument";
 
-export type MigrationRun = (records: ZiskDocument[]) => Promise<[JournalMeta, ...ZiskDocument[]]>
+// export type MigrationRun = (records: ZiskDocument[]) => Promise<[Journal, ...ZiskDocument[]]>
 
-export abstract class Migration {
-    public abstract readonly version: JournalVersion
-    public abstract readonly description: string
-    public abstract readonly run: MigrationRun
-}
+// enum JournalVersion {
+//     REPLACE_CATEGORY_IDS,
+//     INITIAL_VERSION,
+// }
 
-export class MigrationEngine {
-    public static latestVersion: JournalVersion = JournalVersion.REPLACE_CATEGORY_IDS;
+// export abstract class Migration {
+//     public abstract readonly version: JournalVersion
+//     public abstract readonly description: string
+//     public abstract readonly run: MigrationRun
+// }
 
-    private static VERSION_STRATEGY: Omit<Record<JournalVersion, Migration>, typeof this.latestVersion> = {
-        // [JournalVersion.INITIAL_VERSION]: new AddParseAmountToEntries(),
-        // [JournalVersion.ADD_PARSE_AMOUNT_TO_ENTRIES]: new SingleCategory(),
-    }
+// export class MigrationEngine {
+//     public static latestVersion: JournalVersion = JournalVersion.REPLACE_CATEGORY_IDS;
 
-    private static initialMigration: MigrationRun = async (records) => {
-        return records.reduce((acc: ZiskDocument[], record: ZiskDocument) => {
-            if (record.kind === 'zisk:journal') {
-                if (!record.journalVersion || typeof record.journalVersion !== 'string') {
-                    record.journalVersion = JournalVersion.INITIAL_VERSION
-                }
-                return [record, ...acc]
-            }
-            acc.push(record)
-            return acc
-        }, []) as [JournalMeta, ...ZiskDocument[]]
-    }
+//     private static VERSION_STRATEGY: Omit<Record<JournalVersion, Migration>, typeof this.latestVersion> = {
+//         // [JournalVersion.INITIAL_VERSION]: new AddParseAmountToEntries(),
+//         // [JournalVersion.ADD_PARSE_AMOUNT_TO_ENTRIES]: new SingleCategory(),
+//     }
 
-    public static migrate: MigrationRun = async (records) => {
-        let [journal, ...rest] = await this.initialMigration(records)
-        const versionsRun: JournalVersion[] = []
+//     private static initialMigration: MigrationRun = async (records) => {
+//         return records.reduce((acc: ZiskDocument[], record: ZiskDocument) => {
+//             if (record.kind === 'zisk:journal') {
+//                 if (!record.journalVersion || typeof record.journalVersion !== 'string') {
+//                     record.journalVersion = JournalVersion.INITIAL_VERSION
+//                 }
+//                 return [record, ...acc]
+//             }
+//             acc.push(record)
+//             return acc
+//         }, []) as [Journal, ...ZiskDocument[]]
+//     }
+
+//     public static migrate: MigrationRun = async (records) => {
+//         let [journal, ...rest] = await this.initialMigration(records)
+//         const versionsRun: JournalVersion[] = []
     
-        while (journal.journalVersion !== this.latestVersion) {
-            let migration: Migration = this.VERSION_STRATEGY[journal.journalVersion as keyof typeof this.VERSION_STRATEGY];
-            if (migration === undefined) {
-                throw new Error("Migration not found for journal version:" + String(journal.journalVersion))
-            }
-            const migrationVersion = migration.version
-            if (versionsRun.includes(migrationVersion)) {
-                throw new Error("Migration loop encountered. A migration was already run for " + String(migrationVersion))
-            }
-            console.log(`Migrating from ${journal.journalVersion} to ${migrationVersion}`);
+//         while (journal.journalVersion !== this.latestVersion) {
+//             let migration: Migration = this.VERSION_STRATEGY[journal.journalVersion as keyof typeof this.VERSION_STRATEGY];
+//             if (migration === undefined) {
+//                 throw new Error("Migration not found for journal version:" + String(journal.journalVersion))
+//             }
+//             const migrationVersion = migration.version
+//             if (versionsRun.includes(migrationVersion)) {
+//                 throw new Error("Migration loop encountered. A migration was already run for " + String(migrationVersion))
+//             }
+//             console.log(`Migrating from ${journal.journalVersion} to ${migrationVersion}`);
 
-            [journal, ...rest] = await migration.run([journal, ...rest])
-            journal.journalVersion = migration.version
-            versionsRun.push(migration.version)
-        }
+//             [journal, ...rest] = await migration.run([journal, ...rest])
+//             journal.journalVersion = migration.version
+//             versionsRun.push(migration.version)
+//         }
 
-        return [journal, ...rest]
-    }
+//         return [journal, ...rest]
+//     }
 
-    public static shouldMigrate(journal: JournalMeta): boolean {
-        return journal.journalVersion !== this.latestVersion
-    }
-}
+//     public static shouldMigrate(journal: Journal): boolean {
+//         return journal.journalVersion !== this.latestVersion
+//     }
+// }

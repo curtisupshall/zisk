@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useContext, useEffect } from 'react'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import { updateCategory } from '@/database/actions'
-import { Category } from '@/types/schema'
+import { Category } from '@/schema/documents/Category'
 
 interface EditCategoryModalProps {
 	open: boolean

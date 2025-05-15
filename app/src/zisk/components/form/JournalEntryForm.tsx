@@ -13,7 +13,6 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
-import { EntryRecurrency, JournalEntry } from '@/types/schema'
 import AmountField from '../input/AmountField'
 import CategorySelector from '../input/CategorySelector'
 import ChildJournalEntryForm from './ChildJournalEntryForm'
@@ -26,7 +25,9 @@ import EntryTasksForm from './EntryTasksForm'
 import AccountAutocomplete from '../input/AccountAutocomplete'
 import { Book, InfoOutlined, TransferWithinAStation } from '@mui/icons-material'
 import RecurrenceSelect from '../input/RecurrenceSelect'
-import { RESERVED_TAGS } from '@/constants/tags'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
+import { EntryStatus, StatusVariant } from '@/schema/models/EntryStatus'
+import { EntryRecurrency } from '@/schema/models/EntryRecurrence'
 
 export default function JournalEntryForm() {
 	const { setValue, control, register } = useFormContext<JournalEntry>()
@@ -36,11 +37,12 @@ export default function JournalEntryForm() {
 	const categoryId = useWatch({ control, name: 'categoryId' })
 	const sourceAccountId = useWatch({ control, name: 'sourceAccountId' })
 	const entryTagIds = useWatch({ control, name: 'tagIds' })
+	const statusIds = useWatch({ control, name: 'statusIds' })
 	const attachments = useWatch({ control, name: '_attachments' }) ?? {}
 	const journalEntryId = useWatch({ control, name: '_id' })
 	const entryType = useWatch({ control, name: 'kind' })
 	const _childEntries = useWatch({ control, name: 'children' })
-	const isApproximate = entryTagIds && entryTagIds.some((tagId) => tagId === RESERVED_TAGS.APPROXIMATE._id)
+	const isApproximate = statusIds && statusIds.some((status) => status === StatusVariant.enum.APPROXIMATE)
 
 	const handleChangeEntryType = (_newType: JournalEntry['kind']) => {
 		// if (newType === TRANSFER_ENTRY.value && childEntries && childEntries.length > 0) {
@@ -64,7 +66,7 @@ export default function JournalEntryForm() {
 
 	return (
 		<>
-			<Box data-journalEntryId={parentEntryId} sx={{ position: 'relative' /* Used for attachment drag overlay */ }}>
+			<Box data-journalentryid={parentEntryId} sx={{ position: 'relative' /* Used for attachment drag overlay */ }}>
 				<ToggleButtonGroup exclusive value={entryType} size='small' onChange={(_event, value) => handleChangeEntryType(value)}>
 					<ToggleButton value={''}>
 						<Stack direction='row' gap={0.5} alignItems='center'>
@@ -124,7 +126,7 @@ export default function JournalEntryForm() {
 									)}
 								/>
 								
-								<Controller
+								{/* <Controller
 									control={control}
 									name="recurs"
 									render={({ field }) => (
@@ -136,13 +138,13 @@ export default function JournalEntryForm() {
 											}}
 										/>
 									)}
-								/>
+								/> */}
 							</Stack>
 							<Grid container columns={12} columnSpacing={2}>
 								<Grid size={!isTransferEntry ? 8 : 4}>
 									<Controller
 										control={control}
-										name="amount"
+										name="_ephemeral.amount"
 										render={({ field }) => (
 											<AmountField
 												variant='filled'

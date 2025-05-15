@@ -1,4 +1,4 @@
-import { DayOfWeek } from "@/types/schema";
+import { DayOfWeek } from "@/schema/support/recurrence";
 
 export const DAYS_OF_WEEK_NAMES: Record<DayOfWeek, string> = {
     'SU': 'Sunday',

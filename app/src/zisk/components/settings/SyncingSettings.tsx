@@ -1,15 +1,15 @@
 import { Alert, Button, Link, Paper, Stack, Typography } from "@mui/material"
 import SettingsSectionHeader from "./SettingsSectionHeader"
 import { useContext, useState } from "react"
-import { SyncingStrategy } from "@/types/schema"
 import { ZiskContext } from "@/contexts/ZiskContext"
 import { LeakAdd, LeakRemove, Shuffle } from "@mui/icons-material"
-import JoinServerModal from "../modal/JoinServerModal"
+// import JoinServerModal from "../modal/JoinServerModal"
 import ServerWidget from "../widget/ServerWidget"
 import { getServerDatabaseUrl } from "@/utils/server"
 import SyncWidget from "../widget/SyncWidget"
 import SwitchSyncStrategyModal from "../modal/SwitchSyncStrategyModal"
 import { __purgeAllLocalDatabases } from "@/database/actions"
+import { SyncingStrategy } from "@/schema/support/server"
 
 const POUCH_DB_DOCS_URL = 'https://pouchdb.com/'
 // const ZISK_SERVER_DOCS_URL = 'https://github.com/curtisupshall/zisk/tree/master/server'
@@ -27,8 +27,8 @@ export default function SyncingSettings() {
         )
     }
     
-    const ziskServer = ziskContext.data.settings.server
-    const syncStrategy: SyncingStrategy = ziskContext.data.settings.syncingStrategy
+    const ziskServer = ziskContext.data.userSettings.server
+    const syncStrategy: SyncingStrategy = ziskContext.data.userSettings.syncingStrategy
 
     const handleDisconnectFromServer = async () => {
         const confirmDisconnect = window.confirm(
@@ -78,10 +78,10 @@ export default function SyncingSettings() {
                 open={showChangeSyncStrategyModal}
                 onClose={() => setShowChangeSyncStrategyModal(false)}
             />
-            <JoinServerModal
+            {/* <JoinServerModal
                 open={showJoinServerModal}
                 onClose={() => setShowJoinServerModal(false)}
-            />
+            /> */}
             <Stack gap={3}>
                 <section>
                     <SettingsSectionHeader title='Your Server' />

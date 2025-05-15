@@ -5,7 +5,6 @@ import EditCategoryModal from '@/components/modal/EditCategoryModal'
 import { JournalContext } from '@/contexts/JournalContext'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
 import {  deleteCategory, undeleteCategory } from '@/database/actions'
-import { Category } from '@/types/schema'
 import { pluralize as p } from '@/utils/string'
 import { Add, Search } from '@mui/icons-material'
 import {
@@ -21,6 +20,7 @@ import {
 	Typography,
 } from '@mui/material'
 import { useContext, useState } from 'react'
+import { Category } from '@/schema/documents/Category'
 
 export default function ManageCategories() {
 	const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false)

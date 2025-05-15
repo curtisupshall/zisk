@@ -1,6 +1,6 @@
 import { JournalFilterSlot } from "@/components/journal/ribbon/JournalFilterPicker";
-import { AmountRange, JournalSlice } from "@/types/schema";
 import { parseJournalEntryAmount } from "./journal";
+import { AmountRange, JournalSlice } from "@/schema/support/slice";
 
 
 export const enumerateFilters = (journalSlice: JournalSlice): Set<JournalFilterSlot> => {

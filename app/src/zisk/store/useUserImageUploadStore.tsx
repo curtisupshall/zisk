@@ -1,4 +1,4 @@
-import { Avatar } from '@/types/schema'
+import { Avatar } from '@/schema/models/Avatar'
 import { create } from 'zustand'
 
 interface UserImageAvatarHistoryStore {

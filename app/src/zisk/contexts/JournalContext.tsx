@@ -1,21 +1,19 @@
-import { Account, Category, EntryTag, JournalEntry, JournalMeta } from '@/types/schema'
+import { Account } from '@/schema/documents/Account'
+import { Category } from '@/schema/documents/Category'
+import { EntryTag } from '@/schema/documents/EntryTag'
+import { Journal } from '@/schema/documents/Journal'
 import { DefinedUseQueryResult } from '@tanstack/react-query'
 import { createContext } from 'react'
-import { UseFormReturn } from 'react-hook-form'
 
 export interface JournalContext {
-	getJournalsQuery: DefinedUseQueryResult<Record<JournalMeta['_id'], JournalMeta>, Error>
-	getCategoriesQuery: DefinedUseQueryResult<Record<Category['_id'], Category>, Error>
-	getAccountsQuery: DefinedUseQueryResult<Record<Account['_id'], Account>, Error>
-	getEntryTagsQuery: DefinedUseQueryResult<Record<EntryTag['_id'], EntryTag>, Error>
-	showJournalEntryModal: boolean
-	journal: JournalMeta | null
-	journalEntryForm: UseFormReturn<JournalEntry>
-	closeEntryModal: () => void
-	createJournalEntry: (value?: Partial<JournalEntry>) => void
-	editJournalEntry: (entry: JournalEntry) => void
-	openJournalManager: () => void
-	closeActiveJournal: () => void
+	activeJournalId: string | null;
+	setActiveJournalId: (journalId: string | null) => void;
+	queries: {
+		accounts: DefinedUseQueryResult<Record<string, Account>, Error>
+		categories: DefinedUseQueryResult<Record<string, Category>, Error>
+		journals: DefinedUseQueryResult<Record<string, Journal>, Error>
+		tags: DefinedUseQueryResult<Record<string, EntryTag>, Error>
+	},
 }
 
 export const JournalContext = createContext<JournalContext>({} as JournalContext)

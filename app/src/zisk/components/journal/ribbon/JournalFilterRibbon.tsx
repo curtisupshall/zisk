@@ -1,7 +1,6 @@
 import AvatarChip from "@/components/icon/AvatarChip"
 import { JournalContext } from "@/contexts/JournalContext"
 import { JournalSliceContext } from "@/contexts/JournalSliceContext"
-import { Category } from "@/types/schema"
 import { Add, MonetizationOn, Savings } from "@mui/icons-material"
 import { Chip, Collapse, IconButton, Stack, Typography } from "@mui/material"
 import { useContext, useRef, useState } from "react"
@@ -9,6 +8,7 @@ import JournalFilterPicker from "./JournalFilterPicker"
 import { getPriceString } from "@/utils/string"
 import { parseJournalEntryAmount } from "@/utils/journal"
 import { useGetPriceStyle } from "@/hooks/useGetPriceStyle"
+import { Category } from "@/schema/documents/Category"
 
 
 export default function JournalFilterRibbon() {

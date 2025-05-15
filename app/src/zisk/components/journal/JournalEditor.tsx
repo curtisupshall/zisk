@@ -1,7 +1,6 @@
 import { MouseEvent, useContext, useEffect, useMemo, useState } from 'react'
 import { Box, Collapse, Divider, Paper, Stack } from '@mui/material'
 import JournalHeader from './ribbon/JournalHeader'
-import { JournalEntry } from '@/types/schema'
 import JournalEntryCard from './JournalEntryCard'
 import { deleteJournalEntry } from '@/database/actions'
 import { NotificationsContext } from '@/contexts/NotificationsContext'
@@ -12,6 +11,8 @@ import { getDatabaseClient } from '@/database/client'
 import SpendChart from '../chart/SpendChart'
 import CategorySpreadChart from '../chart/CategorySpreadChart'
 import { useSearch } from '@tanstack/react-router'
+import { JournalEntry } from '@/schema/documents/JournalEntry'
+import { useBeginEditingJournalEntry } from '@/store/app/useJournalEntryEditModalState'
 
 export interface JournalEntrySelection {
 	entry: JournalEntry | null
@@ -27,6 +28,8 @@ export default function JournalEditor() {
 	const { snackbar } = useContext(NotificationsContext)
 	const journalContext = useContext(JournalContext)
 	const journalSliceContext = useContext(JournalSliceContext)
+
+	const beginEditingJournalEntry = useBeginEditingJournalEntry()
 
 	const { tab } = useSearch({ from: '/_mainLayout/journal/$view/$' })
 
@@ -65,7 +68,7 @@ export default function JournalEditor() {
 	}
 
 	const handleDoubleClickListItem = (_event: MouseEvent<any>, entry: JournalEntry) => {
-		journalContext.editJournalEntry(entry)
+		beginEditingJournalEntry(entry)
 	}
 
 	const handleDeselectListItem = () => {

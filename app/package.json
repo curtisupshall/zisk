@@ -30,7 +30,6 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "dotenv-expand": "^12.0.1",
-    "faker": "^5.5.3",
     "file-saver": "^2.0.5",
     "fuse.js": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -45,7 +44,8 @@
     "react-hook-form": "^7.54.2",
     "react-window": "^1.8.11",
     "sharp": "^0.33.5",
-    "zod": "^3.24.2",
+    "uuid": "^11.1.0",
+    "zod": "^4.0.0-beta.20250504T224201",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
@@ -53,7 +53,6 @@
     "@tanstack/react-router-devtools": "^1.114.25",
     "@tanstack/router-cli": "^1.114.25",
     "@tanstack/router-plugin": "^1.114.25",
-    "@types/faker": "^6.6.8",
     "@types/file-saver": "^2.0.7",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.10",
@@ -61,6 +60,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/react-window": "^1.8.8",
+    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",

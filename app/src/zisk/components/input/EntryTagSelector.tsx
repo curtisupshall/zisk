@@ -9,28 +9,30 @@ import {
     Typography
 } from "@mui/material";
 import { Settings } from "@mui/icons-material";
-import { EntryTag, ReservedTag } from "@/types/schema";
 import { JournalContext } from "@/contexts/JournalContext";
 import clsx from "clsx";
 import { EntryTagAutocompleteProps } from "./EntryTagAutocomplete";
-import { RESERVED_TAGS } from "@/constants/tags";
 import { EntryTagPicker } from "../pickers/EntryTagPicker";
+import { EntryStatus } from "@/schema/models/EntryStatus";
+import { ZiskEntryStatus } from "@/constants/status";
+import { EntryTag } from "@/schema/documents/EntryTag";
+import { useEntryTags } from "@/store/orm/tags";
 
 type EntryTagSelectorProps = Omit<EntryTagAutocompleteProps, 'renderInput'>
 
 export default function EntryTagSelector(props: EntryTagSelectorProps) {
     const anchorRef = useRef<HTMLAnchorElement>(null);
     const [open, setOpen] = useState<boolean>(false)
-    
-    const { getEntryTagsQuery } = useContext(JournalContext)
+
+    const entryTags = useEntryTags()
     const value = props.value ?? []
 
-    const options: Record<string, EntryTag | ReservedTag> = {
-        ...RESERVED_TAGS,
-        ...getEntryTagsQuery.data
+    const options: Record<string, EntryTag | EntryStatus> = {
+        ...Object.fromEntries(ZiskEntryStatus.map((status) => [status._id, status])),
+        ...entryTags
     }
 
-    const selectedEntryTags: (EntryTag | ReservedTag)[] = value
+    const selectedTags: (EntryTag | EntryStatus)[] = value
         .map((tagId) => options[tagId])
         .filter(Boolean)
 
@@ -67,14 +69,14 @@ export default function EntryTagSelector(props: EntryTagSelectorProps) {
                     <Settings />
                 </IconButton>
             </Button>
-            {selectedEntryTags.length === 0 ? (
+            {selectedTags.length === 0 ? (
                 <Typography sx={{ mt: -1 }} variant='body2' color='textSecondary'>
                     <span>No tags — </span>
                     <Link onClick={() => setOpen(true)}>Add one</Link>
                 </Typography>
             ) : (
                 <Stack direction='row' alignItems='flex-start' gap={1} sx={{ flexWrap: 'wrap', mx: -0.5 }}>
-                    {selectedEntryTags.map((tag) => {
+                    {selectedTags.map((tag: EntryStatus | EntryTag) => {
                         return (
                             <ButtonBase disableRipple onClick={() => setOpen(true)} key={tag._id}>
                                 <Chip label={tag.label} />
