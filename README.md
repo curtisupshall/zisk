@@ -9,13 +9,24 @@ The open-source, local-first personal finance app.
 > Zisk is in a pre-alpha state, and only suitable for use by developers
 >
 
-## Starting the backend
-```
-make clean
-make db
-```
+This is the mono-repo source for services used to run Zisk.
 
-## Starting the frontend
-```
-make web
-```
+## Services
+
+### App
+This is the frontend for Zisk. Core dependencies include:
+ - PouchDB
+ - React
+ - Material-UI
+ - Emotion
+ - Tanstack Router
+ - Tanstack Query
+ - React-Hook-Form
+ - Zod
+ - Zustand
+
+Please see `app/README.md` for more info.
+
+### Server
+
+Please see `server/README.md` for more info.
