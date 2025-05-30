@@ -10,8 +10,6 @@ export type Optional<S extends z.ZodRawShape> = {
   [K in keyof S]: z.ZodOptional<S[K]>
 }
 
-export type EmptyZodRawShape = Record<string, never>
-
 export class Model {
   public static extend<E extends z.ZodRawShape>(extension: E) {
     class ExtendedModel {
@@ -26,7 +24,7 @@ export class Model {
       public static fromSchema<Kind extends KindTemplate, Intrinsic extends z.ZodRawShape>(
         intrinsic: KindShape<Kind> & Intrinsic,
       ) {
-        return Model.fromExtendedSchemas<Kind, Intrinsic, EmptyZodRawShape, E>([intrinsic, {}, extension])
+        return Model.fromExtendedSchemas<Kind, Intrinsic, {}, E>([intrinsic, {}, extension])
       }
     }
     return ExtendedModel
@@ -35,7 +33,7 @@ export class Model {
   public static fromSchema = <Kind extends KindTemplate, Intrinsic extends z.ZodRawShape>(
     intrinsic: KindShape<Kind> & Intrinsic,
   ) => {
-    return Model.fromExtendedSchemas<Kind, Intrinsic, EmptyZodRawShape, EmptyZodRawShape>([intrinsic, {}, {}])
+    return Model.fromExtendedSchemas<Kind, Intrinsic, {}, {}>([intrinsic, {}, {}])
   }
 
   public static fromSchemas = <
@@ -43,7 +41,7 @@ export class Model {
     Intrinsic extends z.ZodRawShape,
     Derived extends z.ZodRawShape,
   >([intrinsic, derived]: [KindShape<Kind> & Intrinsic, Derived]) => {
-    return Model.fromExtendedSchemas<Kind, Intrinsic, Derived, EmptyZodRawShape>([intrinsic, derived, {}])
+    return Model.fromExtendedSchemas<Kind, Intrinsic, Derived, {}>([intrinsic, derived, {}])
   }
 
   private static fromExtendedSchemas = <
